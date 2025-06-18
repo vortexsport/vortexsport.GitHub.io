@@ -15,77 +15,41 @@
       --max-width: 1100px;
       --gap: 60px;
     }
-
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
-
-    html {
-      scroll-behavior: smooth;
-    }
-
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
     html, body {
       height: 100%;
       font-family: 'Montserrat', sans-serif;
       background-color: #f8f9fa;
       color: #333;
     }
-
-    body {
-      display: flex;
-      flex-direction: row;
-    }
+    body { display: flex; flex-direction: row; }
 
     nav {
-      position: fixed;
-      top: 0;
-      left: 0;
-      height: 100vh;
-      width: 250px;
+      position: fixed; top: 0; left: 0;
+      height: 100vh; width: 250px;
       background-color: var(--color-primario);
       color: white;
       padding: 2rem 1rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
+      display: flex; flex-direction: column; align-items: center;
       z-index: 10;
     }
-
-    nav img {
-      width: 100px;
-      margin-bottom: 2rem;
-    }
-
-    nav ul {
-      list-style: none;
-      width: 100%;
-    }
-
-    nav ul li {
-      margin-bottom: 1rem;
-    }
-
+    nav img { width: 100px; margin-bottom: 2rem; }
+    nav ul { list-style: none; width: 100%; }
+    nav ul li { margin-bottom: 1rem; }
     nav ul li a {
-      color: white;
-      text-decoration: none;
-      display: block;
-      text-align: left;
+      color: white; text-decoration: none;
+      display: block; text-align: left;
       padding-left: 0.5rem;
       font-weight: 600;
       transition: all 0.3s ease;
     }
-
-    nav ul li a:hover {
-      color: var(--color-secundario);
-    }
+    nav ul li a:hover { color: var(--color-secundario); }
 
     .main-container {
       margin-left: 250px;
       width: calc(100% - 250px);
     }
-
     .portada {
       width: 100%;
       height: 100vh;
@@ -94,18 +58,45 @@
       justify-content: center;
       background-color: white;
     }
-
-    .portada picture,
-    .portada img {
-      max-width: 60vw;
-      max-height: 90vh;
+    .portada picture, .portada img {
+      max-width: 60vw; max-height: 90vh;
     }
-
     @media (max-width: 768px) {
-      .portada picture,
-      .portada img {
-        max-width: 90vw;
+      nav { display: none; }
+      .main-container { margin-left: 0; width: 100%; }
+      .menu-toggle {
+        display: block;
+        position: fixed;
+        top: 20px; left: 20px;
+        background-color: var(--color-primario);
+        color: white; border: none;
+        padding: 10px;
+        z-index: 101; border-radius: 5px;
+        font-size: 1.2rem;
+        box-shadow: var(--shadow);
       }
+      #mobileMenu {
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        background-color: var(--color-primario);
+        position: fixed;
+        top: 0; left: 0;
+        width: 100%; height: 100vh;
+        z-index: 20;
+      }
+      #mobileMenu ul {
+        list-style: none;
+        padding: 0;
+      }
+      #mobileMenu li { margin: 1rem 0; }
+      #mobileMenu a {
+        color: white;
+        font-size: 1.5rem;
+        text-decoration: none;
+      }
+      .portada picture, .portada img { max-width: 90vw; }
     }
 
     main {
@@ -116,7 +107,6 @@
       flex-direction: column;
       align-items: center;
     }
-
     section {
       background: var(--bg-card);
       border-radius: var(--radius);
@@ -127,41 +117,28 @@
       transition: box-shadow 0.3s ease, transform 0.3s ease;
       width: 100%;
     }
-
     section:hover {
       box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
       transform: translateY(-3px);
     }
-
     h2 {
       font-size: 2rem;
       color: var(--color-primario);
       text-align: center;
       margin-bottom: 1.2rem;
     }
-
-    h3 {
-      font-size: 1.5rem;
-      color: var(--color-primario);
-      text-align: center;
-      margin-bottom: 1rem;
-    }
-
     ul {
       padding-left: 1.5rem;
       margin-top: 1rem;
     }
-
     ul li {
       margin-bottom: 0.6rem;
       text-align: left;
     }
 
-    .inicio-float,
-    .whatsapp-float {
+    .inicio-float, .whatsapp-float {
       position: fixed;
-      width: 50px;
-      height: 50px;
+      width: 50px; height: 50px;
       border-radius: 50%;
       display: flex;
       align-items: center;
@@ -170,35 +147,29 @@
       z-index: 9999;
       background-color: transparent;
       transition: transform 0.3s ease, box-shadow 0.3s ease;
-      padding: 0;
-      border: none;
     }
-
-    .inicio-float {
-      bottom: 80px;
-      right: 20px;
+    .inicio-float { bottom: 80px; right: 20px; display: none; }
+    .whatsapp-float { bottom: 20px; right: 20px; }
+    .inicio-float img, .whatsapp-float img {
+      width: 100%; height: 100%; border-radius: 50%;
     }
-
-    .whatsapp-float {
-      bottom: 20px;
-      right: 20px;
-    }
-
-    .inicio-float img,
-    .whatsapp-float img {
-      width: 100%;
-      height: 100%;
-      border-radius: 50%;
-    }
-
-    .inicio-float:hover,
-    .whatsapp-float:hover {
+    .inicio-float:hover, .whatsapp-float:hover {
       transform: scale(1.2);
       box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
     }
   </style>
 </head>
 <body>
+  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
+  <nav id="mobileMenu">
+    <ul>
+      <li><a href="#inicio" onclick="closeMenu()">Inicio</a></li>
+      <li><a href="#servicios" onclick="closeMenu()">Servicios</a></li>
+      <li><a href="#deportes" onclick="closeMenu()">Deportes</a></li>
+      <li><a href="#contacto" onclick="closeMenu()">Contacto</a></li>
+    </ul>
+  </nav>
+
   <nav>
     <img src="Logos/LOGO.png" alt="Logo VORTEX">
     <ul>
@@ -226,7 +197,7 @@
       <section id="servicios">
         <h2>Nuestros Servicios</h2>
         <ul>
-          <li>Diseño y confección de uniformes personalizados para jugadores, árbitros y staff técnico</li>
+          <li>Diseño de uniformes personalizados para jugadores, árbitros y staff técnico</li>
           <li>Balones personalizados con el branding de tu liga o torneo</li>
           <li>Redes de portería, redes perimetrales y equipo de juego</li>
           <li>Accesorios complementarios para cada disciplina</li>
@@ -247,7 +218,6 @@
 
       <section id="contacto">
         <h2>Contáctanos</h2>
-        <p>¿Te gustaría cotizar un paquete para tu liga o torneo? Escríbenos por WhatsApp y con gusto te atendemos:</p>
         <ul>
           <li><a href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX">Julián Berumen – (449) 107 1025</a></li>
           <li><a href="https://wa.me/524494336064?text=Informaci%C3%B3n%20sobre%20VORTEX">Alfredo Cuellar – (449) 433 6064</a></li>
@@ -256,23 +226,25 @@
     </main>
   </div>
 
-  <a class="inicio-float" id="inicioBtn" href="#inicio" title="Regresar al inicio" style="display: none;">
+  <a class="inicio-float" id="inicioBtn" href="#inicio" title="Regresar al inicio">
     <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="Inicio">
   </a>
-
-  <a class="whatsapp-float" href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank" title="Enviar mensaje por WhatsApp">
+  <a class="whatsapp-float" href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank" title="WhatsApp">
     <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
   </a>
 
   <script>
     window.addEventListener('scroll', function () {
       const btn = document.getElementById('inicioBtn');
-      if (window.scrollY > window.innerHeight * 0.8) {
-        btn.style.display = 'flex';
-      } else {
-        btn.style.display = 'none';
-      }
+      btn.style.display = window.scrollY > window.innerHeight * 0.8 ? 'flex' : 'none';
     });
+    function toggleMenu() {
+      const nav = document.getElementById('mobileMenu');
+      nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+    }
+    function closeMenu() {
+      document.getElementById('mobileMenu').style.display = 'none';
+    }
   </script>
 </body>
 </html>
