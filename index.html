@@ -61,6 +61,7 @@
     .portada picture, .portada img {
       max-width: 60vw; max-height: 90vh;
     }
+
     @media (max-width: 768px) {
       nav { display: none; }
       .main-container { margin-left: 0; width: 100%; }
@@ -136,6 +137,26 @@
       text-align: left;
     }
 
+    .contact-card {
+      background: #fff;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      padding: 1.5rem;
+      margin: 1rem 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+    .contact-card img {
+      width: 32px;
+      height: 32px;
+    }
+    .contact-card a {
+      color: var(--color-primario);
+      text-decoration: none;
+      font-weight: 600;
+    }
+
     .inicio-float, .whatsapp-float {
       position: fixed;
       width: 50px; height: 50px;
@@ -169,7 +190,6 @@
       <li><a href="#contacto" onclick="closeMenu()">Contacto</a></li>
     </ul>
   </nav>
-
   <nav>
     <img src="Logos/LOGO.png" alt="Logo VORTEX">
     <ul>
@@ -179,7 +199,6 @@
       <li><a href="#contacto">Contacto</a></li>
     </ul>
   </nav>
-
   <div class="main-container">
     <div class="portada">
       <picture>
@@ -187,13 +206,11 @@
         <img src="Logos/LOGO_VORTEX.png" alt="Logo VORTEX Completo">
       </picture>
     </div>
-
     <main>
       <section id="inicio">
         <h2>Bienvenido a VORTEX</h2>
         <p>Somos una empresa especializada en proveer <strong>soluciones deportivas integrales</strong> para torneos y ligas en Aguascalientes y la región. En VORTEX ofrecemos uniformes personalizados, equipamiento deportivo y paquetes completos para cubrir todas las necesidades de tu evento deportivo con calidad, estilo y puntualidad.</p>
       </section>
-
       <section id="servicios">
         <h2>Nuestros Servicios</h2>
         <ul>
@@ -204,7 +221,6 @@
           <li>Atención personalizada y entregas programadas</li>
         </ul>
       </section>
-
       <section id="deportes">
         <h2>Disciplinas que atendemos</h2>
         <ul>
@@ -215,24 +231,40 @@
           <li>🚴‍♂️ Ciclismo</li>
         </ul>
       </section>
-
       <section id="contacto">
         <h2>Contáctanos</h2>
-        <ul>
-          <li><a href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX">Julián Berumen – (449) 107 1025</a></li>
-          <li><a href="https://wa.me/524494336064?text=Informaci%C3%B3n%20sobre%20VORTEX">Alfredo Cuellar – (449) 433 6064</a></li>
-        </ul>
+        <div class="contact-card">
+          <img src="https://cdn-icons-png.flaticon.com/512/220/220236.png" alt="Teléfono">
+          <a href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank">Julián Berumen – (449) 107 1025</a>
+        </div>
+        <div class="contact-card">
+          <img src="https://cdn-icons-png.flaticon.com/512/220/220236.png" alt="Teléfono">
+          <a href="https://wa.me/524494336064?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank">Alfredo Cuellar – (449) 433 6064</a>
+        </div>
+        <div class="contact-card">
+          <img src="https://cdn-icons-png.flaticon.com/512/561/561127.png" alt="Correo">
+          <a href="mailto:vortexags@gmail.com">vortexags@gmail.com</a>
+        </div>
+        <form action="https://formsubmit.co/vortexags@gmail.com" method="POST" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
+          <input type="hidden" name="_captcha" value="false">
+          <input type="hidden" name="_next" value="https://vortex.github.io/#mensaje-enviado">
+          <input type="text" name="name" placeholder="Nombre completo" required style="padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
+          <input type="email" name="email" placeholder="Correo electrónico" required style="padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
+          <textarea name="message" rows="5" placeholder="Escribe tu mensaje..." required style="padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;"></textarea>
+          <button type="submit" style="padding: 0.75rem; background-color: var(--color-primario); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">Enviar mensaje</button>
+        </form>
+        <div id="mensaje-enviado" style="display:none; margin-top: 2rem; padding: 1.5rem; background-color: #e9f7ef; border: 1px solid #c3e6cb; border-radius: 8px; color: #155724; font-size: 1rem; font-weight: 500;">
+          ✅ Tu mensaje ha sido enviado con éxito. Nos pondremos en contacto contigo a la brevedad. ¡Gracias por escribirnos!
+        </div>
       </section>
     </main>
   </div>
-
   <a class="inicio-float" id="inicioBtn" href="#inicio" title="Regresar al inicio">
     <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="Inicio">
   </a>
   <a class="whatsapp-float" href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank" title="WhatsApp">
     <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
   </a>
-
   <script>
     window.addEventListener('scroll', function () {
       const btn = document.getElementById('inicioBtn');
@@ -244,6 +276,10 @@
     }
     function closeMenu() {
       document.getElementById('mobileMenu').style.display = 'none';
+    }
+    if (window.location.hash === "#mensaje-enviado") {
+      document.getElementById("mensaje-enviado").style.display = "block";
+      window.scrollTo({ top: document.getElementById("mensaje-enviado").offsetTop - 100, behavior: 'smooth' });
     }
   </script>
 </body>
