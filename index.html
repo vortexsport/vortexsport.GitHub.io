@@ -1,286 +1,312 @@
-<!DOCTYPE html>
-<html lang="es">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>VORTEX | Soluciones deportivas</title>
-  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root {
-      --color-primario: #0a3d62;
-      --color-secundario: #25d366;
-      --bg-card: #ffffff;
-      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-      --radius: 15px;
-      --max-width: 1100px;
-      --gap: 60px;
-    }
-    * { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
-    html, body {
-      height: 100%;
-      font-family: 'Montserrat', sans-serif;
-      background-color: #f8f9fa;
-      color: #333;
-    }
-    body { display: flex; flex-direction: row; }
-
-    nav {
-      position: fixed; top: 0; left: 0;
-      height: 100vh; width: 250px;
-      background-color: var(--color-primario);
-      color: white;
-      padding: 2rem 1rem;
-      display: flex; flex-direction: column; align-items: center;
-      z-index: 10;
-    }
-    nav img { width: 100px; margin-bottom: 2rem; }
-    nav ul { list-style: none; width: 100%; }
-    nav ul li { margin-bottom: 1rem; }
-    nav ul li a {
-      color: white; text-decoration: none;
-      display: block; text-align: left;
-      padding-left: 0.5rem;
-      font-weight: 600;
-      transition: all 0.3s ease;
-    }
-    nav ul li a:hover { color: var(--color-secundario); }
-
-    .main-container {
-      margin-left: 250px;
-      width: calc(100% - 250px);
-    }
-    .portada {
-      width: 100%;
-      height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      background-color: white;
-    }
-    .portada picture, .portada img {
-      max-width: 60vw; max-height: 90vh;
-    }
-
-    @media (max-width: 768px) {
-      nav { display: none; }
-      .main-container { margin-left: 0; width: 100%; }
-      .menu-toggle {
-        display: block;
-        position: fixed;
-        top: 20px; left: 20px;
-        background-color: var(--color-primario);
-        color: white; border: none;
-        padding: 10px;
-        z-index: 101; border-radius: 5px;
-        font-size: 1.2rem;
-        box-shadow: var(--shadow);
-      }
-      #mobileMenu {
-        display: none;
-        flex-direction: column;
-        align-items: center;
-        justify-content: center;
-        background-color: var(--color-primario);
-        position: fixed;
-        top: 0; left: 0;
-        width: 100%; height: 100vh;
-        z-index: 20;
-      }
-      #mobileMenu ul {
-        list-style: none;
-        padding: 0;
-      }
-      #mobileMenu li { margin: 1rem 0; }
-      #mobileMenu a {
-        color: white;
-        font-size: 1.5rem;
-        text-decoration: none;
-      }
-      .portada picture, .portada img { max-width: 90vw; }
-    }
-
-    main {
-      padding: 2rem;
-      max-width: var(--max-width);
-      margin: 0 auto;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
-    section {
-      background: var(--bg-card);
-      border-radius: var(--radius);
-      box-shadow: var(--shadow);
-      padding: 2.5rem;
-      margin-bottom: var(--gap);
-      text-align: justify;
-      transition: box-shadow 0.3s ease, transform 0.3s ease;
-      width: 100%;
-    }
-    section:hover {
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-      transform: translateY(-3px);
-    }
-    h2 {
-      font-size: 2rem;
-      color: var(--color-primario);
-      text-align: center;
-      margin-bottom: 1.2rem;
-    }
-    ul {
-      padding-left: 1.5rem;
-      margin-top: 1rem;
-    }
-    ul li {
-      margin-bottom: 0.6rem;
-      text-align: left;
-    }
-
-    .contact-card {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: var(--shadow);
-      padding: 1.5rem;
-      margin: 1rem 0;
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-    }
-    .contact-card img {
-      width: 32px;
-      height: 32px;
-    }
-    .contact-card a {
-      color: var(--color-primario);
-      text-decoration: none;
-      font-weight: 600;
-    }
-
-    .inicio-float, .whatsapp-float {
-      position: fixed;
-      width: 50px; height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
-      z-index: 9999;
-      background-color: transparent;
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-    }
-    .inicio-float { bottom: 80px; right: 20px; display: none; }
-    .whatsapp-float { bottom: 20px; right: 20px; }
-    .inicio-float img, .whatsapp-float img {
-      width: 100%; height: 100%; border-radius: 50%;
-    }
-    .inicio-float:hover, .whatsapp-float:hover {
-      transform: scale(1.2);
-      box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
-    }
-  </style>
-</head>
-<body>
-  <button class="menu-toggle" onclick="toggleMenu()">☰</button>
-  <nav id="mobileMenu">
-    <ul>
-      <li><a href="#inicio" onclick="closeMenu()">Inicio</a></li>
-      <li><a href="#servicios" onclick="closeMenu()">Servicios</a></li>
-      <li><a href="#deportes" onclick="closeMenu()">Deportes</a></li>
-      <li><a href="#contacto" onclick="closeMenu()">Contacto</a></li>
-    </ul>
-  </nav>
-  <nav>
-    <img src="Logos/LOGO.png" alt="Logo VORTEX">
-    <ul>
-      <li><a href="#inicio">Inicio</a></li>
-      <li><a href="#servicios">Servicios</a></li>
-      <li><a href="#deportes">Deportes</a></li>
-      <li><a href="#contacto">Contacto</a></li>
-    </ul>
-  </nav>
-  <div class="main-container">
-    <div class="portada">
-      <picture>
-        <source srcset="Logos/LOGO_VERTICAL.png" media="(max-width: 768px)">
-        <img src="Logos/LOGO_VORTEX.png" alt="Logo VORTEX Completo">
-      </picture>
-    </div>
-    <main>
-      <section id="inicio">
-        <h2>Bienvenido a VORTEX</h2>
-        <p>Somos una empresa especializada en proveer <strong>soluciones deportivas integrales</strong> para torneos y ligas en Aguascalientes y la región. En VORTEX ofrecemos uniformes personalizados, equipamiento deportivo y paquetes completos para cubrir todas las necesidades de tu evento deportivo con calidad, estilo y puntualidad.</p>
-      </section>
-      <section id="servicios">
-        <h2>Nuestros Servicios</h2>
-        <ul>
-          <li>Diseño de uniformes personalizados para jugadores, árbitros y staff técnico</li>
-          <li>Balones personalizados con el branding de tu liga o torneo</li>
-          <li>Redes de portería, redes perimetrales y equipo de juego</li>
-          <li>Accesorios complementarios para cada disciplina</li>
-          <li>Atención personalizada y entregas programadas</li>
-        </ul>
-      </section>
-      <section id="deportes">
-        <h2>Disciplinas que atendemos</h2>
-        <ul>
-          <li>⚽ Fútbol</li>
-          <li>🏀 Básquetbol</li>
-          <li>⚾ Béisbol</li>
-          <li>🏐 Voleibol</li>
-          <li>🚴‍♂️ Ciclismo</li>
-        </ul>
-      </section>
-      <section id="contacto">
-        <h2>Contáctanos</h2>
-        <div class="contact-card">
-          <img src="https://cdn-icons-png.flaticon.com/512/220/220236.png" alt="Teléfono">
-          <a href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank">Julián Berumen – (449) 107 1025</a>
-        </div>
-        <div class="contact-card">
-          <img src="https://cdn-icons-png.flaticon.com/512/220/220236.png" alt="Teléfono">
-          <a href="https://wa.me/524494336064?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank">Alfredo Cuellar – (449) 433 6064</a>
-        </div>
-        <div class="contact-card">
-          <img src="https://cdn-icons-png.flaticon.com/512/561/561127.png" alt="Correo">
-          <a href="mailto:vortexags@gmail.com">vortexags@gmail.com</a>
-        </div>
-        <form action="https://formsubmit.co/vortexags@gmail.com" method="POST" style="margin-top: 2rem; display: flex; flex-direction: column; gap: 1rem;">
-          <input type="hidden" name="_captcha" value="false">
-          <input type="hidden" name="_next" value="https://vortex.github.io/#mensaje-enviado">
-          <input type="text" name="name" placeholder="Nombre completo" required style="padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
-          <input type="email" name="email" placeholder="Correo electrónico" required style="padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;">
-          <textarea name="message" rows="5" placeholder="Escribe tu mensaje..." required style="padding: 0.75rem; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;"></textarea>
-          <button type="submit" style="padding: 0.75rem; background-color: var(--color-primario); color: white; border: none; border-radius: 8px; font-size: 1rem; font-weight: 600; cursor: pointer;">Enviar mensaje</button>
-        </form>
-        <div id="mensaje-enviado" style="display:none; margin-top: 2rem; padding: 1.5rem; background-color: #e9f7ef; border: 1px solid #c3e6cb; border-radius: 8px; color: #155724; font-size: 1rem; font-weight: 500;">
-          ✅ Tu mensaje ha sido enviado con éxito. Nos pondremos en contacto contigo a la brevedad. ¡Gracias por escribirnos!
-        </div>
-      </section>
-    </main>
-  </div>
-  <a class="inicio-float" id="inicioBtn" href="#inicio" title="Regresar al inicio">
-    <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="Inicio">
-  </a>
-  <a class="whatsapp-float" href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank" title="WhatsApp">
-    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
-  </a>
-  <script>
-    window.addEventListener('scroll', function () {
-      const btn = document.getElementById('inicioBtn');
-      btn.style.display = window.scrollY > window.innerHeight * 0.8 ? 'flex' : 'none';
-    });
-    function toggleMenu() {
-      const nav = document.getElementById('mobileMenu');
-      nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
-    }
-    function closeMenu() {
-      document.getElementById('mobileMenu').style.display = 'none';
-    }
-    if (window.location.hash === "#mensaje-enviado") {
-      document.getElementById("mensaje-enviado").style.display = "block";
-      window.scrollTo({ top: document.getElementById("mensaje-enviado").offsetTop - 100, behavior: 'smooth' });
-    }
-  </script>
-</body>
-</html>
+	<!DOCTYPE html>
+	<html lang="es">
+	<head>
+	  <meta charset="UTF-8">
+	  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+	  <title>VORTEX | Soluciones deportivas</title>
+	  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+	  <style>
+	    :root {
+	      --color-primario: #0a3d62;
+	      --color-secundario: #25d366;
+	      --bg-card: #ffffff;
+	      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+	      --radius: 15px;
+	      --max-width: 1100px;
+	      --gap: 60px;
+	    }
+	    * { box-sizing: border-box; margin: 0; padding: 0; }
+	    html { scroll-behavior: smooth; }
+	    html, body {
+	      height: 100%;
+	      font-family: 'Montserrat', sans-serif;
+	      background-color: #f8f9fa;
+	      color: #333;
+	    }
+	    body { display: flex; flex-direction: row; }
+	    nav {
+	      position: fixed; top: 0; left: 0;
+	      height: 100vh; width: 250px;
+	      background-color: var(--color-primario);
+	      color: white;
+	      padding: 2rem 1rem;
+	      display: flex; flex-direction: column; align-items: center;
+	      z-index: 10;
+	    }
+	    nav img { width: 100px; margin-bottom: 2rem; }
+	    nav ul { list-style: none; width: 100%; }
+	    nav ul li { margin-bottom: 1rem; }
+	    nav ul li a {
+	      color: white; text-decoration: none;
+	      display: block; text-align: left;
+	      padding-left: 0.5rem;
+	      font-weight: 600;
+	      transition: all 0.3s ease;
+	    }
+	    nav ul li a:hover { color: var(--color-secundario); }
+	    .main-container { margin-left: 250px; width: calc(100% - 250px); }
+	    .portada { width: 100%; height: 100vh; display: flex; align-items: center; justify-content: center; background-color: white; }
+	    .portada picture, .portada img { max-width: 60vw; max-height: 90vh; }
+	    @media (max-width: 768px) {
+	      nav { display: none; }
+	      .main-container { margin-left: 0; width: 100%; }
+	      .menu-toggle {
+	        display: block;
+	        position: fixed;
+	        top: 20px; left: 20px;
+	        background-color: var(--color-primario);
+	        color: white; border: none;
+	        padding: 10px;
+	        z-index: 101; border-radius: 5px;
+	        font-size: 1.2rem;
+	        box-shadow: var(--shadow);
+	      }
+	      #mobileMenu {
+	        display: none;
+	        flex-direction: column;
+	        align-items: center;
+	        justify-content: center;
+	        background-color: var(--color-primario);
+	        position: fixed;
+	        top: 0; left: 0;
+	        width: 100%; height: 100vh;
+	        z-index: 20;
+	      }
+	      #mobileMenu ul { list-style: none; padding: 0; }
+	      #mobileMenu li { margin: 1rem 0; }
+	      #mobileMenu a {
+	        color: white;
+	        font-size: 1.5rem;
+	        text-decoration: none;
+	      }
+	      .portada picture, .portada img { max-width: 90vw; }
+	    }
+	    main {
+	      padding: 2rem;
+	      max-width: var(--max-width);
+	      margin: 0 auto;
+	      display: flex;
+	      flex-direction: column;
+	      align-items: center;
+	    }
+	    section {
+	      background: var(--bg-card);
+	      border-radius: var(--radius);
+	      box-shadow: var(--shadow);
+	      padding: 2.5rem;
+	      margin-bottom: var(--gap);
+	      text-align: justify;
+	      transition: box-shadow 0.3s ease, transform 0.3s ease;
+	      width: 100%;
+	    }
+	    section:hover {
+	      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+	      transform: translateY(-3px);
+	    }
+	    h2 {
+	      font-size: 2rem;
+	      color: var(--color-primario);
+	      text-align: center;
+	      margin-bottom: 1.2rem;
+	    }
+	    ul { padding-left: 1.5rem; margin-top: 1rem; }
+	    ul li { margin-bottom: 0.6rem; text-align: left; }
+	    .galeria-grid {
+	      display: flex;
+	      gap: 1.5rem;
+	      flex-wrap: wrap;
+	      justify-content: center;
+	      margin-top: 2rem;
+	    }
+	    .galeria-item {
+	      width: 100%; max-width: 300px;
+	      border-radius: 12px;
+	      box-shadow: var(--shadow);
+	      cursor: pointer;
+	      transition: transform 0.3s ease;
+	    }
+	    .galeria-item:hover { transform: scale(1.03); }
+	    .lightbox {
+	      display: none;
+	      position: fixed;
+	      top: 0; left: 0;
+	      width: 100%; height: 100%;
+	      background: rgba(0, 0, 0, 0.85);
+	      justify-content: center;
+	      align-items: center;
+	      z-index: 9999;
+	      animation: fadeIn 0.3s ease-in-out;
+	    }
+	    .lightbox img {
+	      max-width: 90vw;
+	      max-height: 90vh;
+	      border-radius: 10px;
+	      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+	      animation: zoomIn 0.3s ease-in-out;
+	    }
+	    @keyframes fadeIn {
+	      from { opacity: 0; } to { opacity: 1; }
+	    }
+	    @keyframes zoomIn {
+	      from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; }
+	    }
+	  </style>
+	</head>
+	<body>
+	
+	
+	  <!-- Menú hamburguesa móvil -->
+	<button class="menu-toggle" onclick="toggleMenu()">☰</button>
+	<nav id="mobileMenu">
+	  <ul>
+	    <li><a href="#inicio" onclick="closeMenu()">Inicio</a></li>
+	    <li><a href="#servicios" onclick="closeMenu()">Servicios</a></li>
+	    <li><a href="#deportes" onclick="closeMenu()">Deportes</a></li>
+	    <li><a href="#galeria" onclick="closeMenu()">Galería</a></li>
+	    <li><a href="#contacto" onclick="closeMenu()">Contacto</a></li>
+	  </ul>
+	</nav>
+	
+	<!-- Menú lateral fijo -->
+	<nav>
+	  <img src="Logos/LOGO.png" alt="Logo VORTEX">
+	  <ul>
+	    <li><a href="#inicio">Inicio</a></li>
+	    <li><a href="#servicios">Servicios</a></li>
+	    <li><a href="#deportes">Deportes</a></li>
+	    <li><a href="#galeria">Galería</a></li>
+	    <li><a href="#contacto">Contacto</a></li>
+	  </ul>
+	</nav>
+	
+	<!-- Contenedor principal -->
+	<div class="main-container">
+	  <!-- Portada responsiva -->
+	  <div class="portada">
+	    <picture>
+	      <source srcset="Logos/LOGO_VERTICAL.png" media="(max-width: 768px)">
+	      <img src="Logos/LOGO_VORTEX.png" alt="Logo VORTEX">
+	    </picture>
+	  </div>
+	
+	  <!-- Contenido principal -->
+	  <main>
+	    <!-- Sección Inicio -->
+	    <section id="inicio">
+	      <h2>Bienvenido a VORTEX</h2>
+	      <p>Somos una empresa especializada en proveer <strong>soluciones deportivas integrales</strong> para torneos y ligas en Aguascalientes y la región. En VORTEX ofrecemos uniformes personalizados, equipamiento deportivo y paquetes completos para cubrir todas las necesidades de tu evento deportivo con calidad, estilo y puntualidad.</p>
+	    </section>
+	
+	    <!-- Sección Servicios -->
+	    <section id="servicios">
+	      <h2>Nuestros Servicios</h2>
+	      <ul>
+	        <li>Diseño de uniformes personalizados para jugadores, árbitros y staff técnico</li>
+	        <li>Balones personalizados con el branding de tu liga o torneo</li>
+	        <li>Redes de portería, redes perimetrales y equipo de juego</li>
+	        <li>Accesorios complementarios para cada disciplina</li>
+	        <li>Atención personalizada y entregas programadas</li>
+	      </ul>
+	    </section>
+	
+	    <!-- Sección Deportes -->
+	    <section id="deportes">
+	      <h2>Disciplinas que atendemos</h2>
+	      <ul>
+	        <li>⚽ Fútbol</li>
+	        <li>🏀 Básquetbol</li>
+	        <li>⚾ Béisbol</li>
+	        <li>🏐 Voleibol</li>
+	        <li>🚴‍♂️ Ciclismo</li>
+	      </ul>
+	    </section>
+	
+	    <!-- Sección Galería -->
+	    <section id="galeria">
+	      <h2>Galería</h2>
+	      <div class="galeria-grid">
+	        <img src="Galeria/uniforme1.png" alt="Uniforme 1" class="galeria-item" onclick="abrirLightbox(this.src)">
+	        <img src="Galeria/uniforme2.png" alt="Uniforme 2" class="galeria-item" onclick="abrirLightbox(this.src)">
+	        <img src="Galeria/uniforme3.png" alt="Uniforme 3" class="galeria-item" onclick="abrirLightbox(this.src)">
+	      </div>
+	      <div id="lightbox" class="lightbox" onclick="cerrarLightbox()">
+	        <img id="lightbox-img" src="" alt="Vista previa">
+	      </div>
+	    </section>
+	
+		    <!-- Sección Contacto con estilo h3 definido -->
+		<section id="contacto">
+		  <h2>Contáctanos</h2>
+		  <h3 style="font-size: 1.5rem; color: #0a3d62; text-align: center; margin-bottom: 1rem;">Asesores de Ventas</h3>
+		  <div class="contact-grid" style="display: flex; flex-wrap: wrap; justify-content: center; gap: 2rem;">
+		    <div class="contact-card" style="background: white; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 1.5rem; text-align: center; max-width: 300px;">
+		      <img src="https://cdn-icons-png.flaticon.com/512/220/220236.png" alt="Teléfono" style="width: 40px; margin-bottom: 0.5rem;">
+		      <h4>Julián Berumen</h4>
+		      <a href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank" style="display: inline-block; margin-top: 1rem; background-color: #25d366; color: white; padding: 0.5rem 1rem; border-radius: 10px; text-decoration: none; font-weight: 600;">WhatsApp</a>
+		    </div>
+		    <div class="contact-card" style="background: white; border-radius: 15px; box-shadow: 0 4px 12px rgba(0,0,0,0.1); padding: 1.5rem; text-align: center; max-width: 300px;">
+		      <img src="https://cdn-icons-png.flaticon.com/512/220/220236.png" alt="Teléfono" style="width: 40px; margin-bottom: 0.5rem;">
+		      <h4>Alfredo Cuellar</h4>
+		      <a href="https://wa.me/524494336064?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank" style="display: inline-block; margin-top: 1rem; background-color: #25d366; color: white; padding: 0.5rem 1rem; border-radius: 10px; text-decoration: none; font-weight: 600;">WhatsApp</a>
+		    </div>
+		  </div>
+		
+		  <h3 style="font-size: 1.5rem; color: #0a3d62; text-align: center; margin: 3rem 0 1rem;">Formulario de contacto</h3>
+		  <form action="https://formsubmit.co/vortexags@gmail.com" method="POST" style="display: flex; flex-direction: column; gap: 1rem; max-width: 600px; margin: 0 auto;">
+		    <input type="hidden" name="_captcha" value="false">
+		    <input type="hidden" name="_next" value="https://vortex.github.io/#mensaje-enviado">
+		    <input type="text" name="name" placeholder="Nombre completo" required style="padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc;">
+		    <input type="email" name="email" placeholder="Correo electrónico" required style="padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc;">
+		    <textarea name="message" rows="5" placeholder="Escribe tu mensaje..." required style="padding: 0.8rem; border-radius: 8px; border: 1px solid #ccc;"></textarea>
+		    <button type="submit" style="background-color: #0a3d62; color: white; padding: 0.8rem; border-radius: 8px; font-weight: bold; border: none; cursor: pointer;">Enviar mensaje</button>
+		  </form>
+		</section>
+	
+	
+	<!-- Botones flotantes corregidos -->
+	<a class="floating-btn whatsapp-float" href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX" title="WhatsApp" target="_blank" style="position: fixed; bottom: 20px; right: 20px; background: none; z-index: 9999;">
+	  <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp" style="width: 60px; height: 60px;">
+	</a>
+	<a class="floating-btn inicio-float" id="inicioBtn" href="#inicio" title="Volver al inicio" style="position: fixed; bottom: 90px; right: 20px; background: none; display: none; z-index: 9999;">
+	  <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="Inicio" style="width: 55px; height: 55px;">
+	</a>
+	
+	<script>
+	  window.addEventListener('scroll', function () {
+	    const btn = document.getElementById('inicioBtn');
+	    btn.style.display = window.scrollY > window.innerHeight * 0.8 ? 'flex' : 'none';
+	  });
+	</script>
+	
+	<!-- Scripts -->
+	<script>
+	  function toggleMenu() {
+	    const nav = document.getElementById('mobileMenu');
+	    nav.style.display = nav.style.display === 'flex' ? 'none' : 'flex';
+	  }
+	  function closeMenu() {
+	    document.getElementById('mobileMenu').style.display = 'none';
+	  }
+	  function abrirLightbox(src) {
+	    const lightbox = document.getElementById("lightbox");
+	    const img = document.getElementById("lightbox-img");
+	    img.src = src;
+	    lightbox.style.display = "flex";
+	  }
+	  function cerrarLightbox() {
+	    document.getElementById("lightbox").style.display = "none";
+	  }
+	  window.addEventListener('scroll', function () {
+	    const btn = document.getElementById('inicioBtn');
+	    btn.style.display = window.scrollY > window.innerHeight * 0.8 ? 'flex' : 'none';
+	  });
+	  if (window.location.hash === "#mensaje-enviado") {
+	    document.getElementById("mensaje-enviado").style.display = "block";
+	    window.scrollTo({ top: document.getElementById("mensaje-enviado").offsetTop - 100, behavior: 'smooth' });
+	  }
+	</script>
+	
+	  
+	  
+	</body>
+	</html>
