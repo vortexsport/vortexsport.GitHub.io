@@ -1,0 +1,253 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>VORTEX | Soluciones deportivas</title>
+  <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primario: #0a3d62;
+      --color-secundario: #25d366;
+      --bg-card: #ffffff;
+      --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      --radius: 15px;
+      --max-width: 1100px;
+      --gap: 60px;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    html, body {
+      height: 100%;
+      font-family: 'Montserrat', sans-serif;
+      background-color: #f8f9fa;
+      color: #333;
+    }
+
+    body {
+      display: flex;
+      flex-direction: row;
+    }
+
+    nav {
+      position: fixed;
+      top: 0;
+      left: 0;
+      height: 100vh;
+      width: 250px;
+      background-color: var(--color-primario);
+      color: white;
+      padding: 2rem 1rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      z-index: 10;
+    }
+
+    nav img {
+      width: 100px;
+      margin-bottom: 2rem;
+    }
+
+    nav ul {
+      list-style: none;
+      width: 100%;
+    }
+
+    nav ul li {
+      margin-bottom: 1rem;
+    }
+
+    nav ul li a {
+      color: white;
+      text-decoration: none;
+      display: block;
+      text-align: left;
+      padding-left: 0.5rem;
+      font-weight: 600;
+      transition: all 0.3s ease;
+    }
+
+    nav ul li a:hover {
+      color: var(--color-secundario);
+    }
+
+    .main-container {
+      margin-left: 250px;
+      width: calc(100% - 250px);
+    }
+
+    .portada {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background-color: white;
+    }
+
+    .portada img {
+      max-width: 90%;
+      max-height: 90%;
+    }
+
+    main {
+      padding: 2rem;
+      max-width: var(--max-width);
+      margin: 0 auto;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
+    section {
+      background: var(--bg-card);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 2.5rem;
+      margin-bottom: var(--gap);
+      text-align: justify;
+      transition: box-shadow 0.3s ease, transform 0.3s ease;
+      width: 100%;
+    }
+
+    section:hover {
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+      transform: translateY(-3px);
+    }
+
+    h2 {
+      font-size: 2rem;
+      color: var(--color-primario);
+      text-align: center;
+      margin-bottom: 1.2rem;
+    }
+
+    h3 {
+      font-size: 1.5rem;
+      color: var(--color-primario);
+      text-align: center;
+      margin-bottom: 1rem;
+    }
+
+    ul {
+      padding-left: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    ul li {
+      margin-bottom: 0.6rem;
+      text-align: left;
+    }
+
+    .inicio-float,
+    .whatsapp-float {
+      position: fixed;
+      width: 50px;
+      height: 50px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 2px 2px 5px rgba(0,0,0,0.3);
+      z-index: 9999;
+      background-color: white;
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+    .inicio-float {
+      bottom: 80px;
+      right: 20px;
+    }
+
+    .whatsapp-float {
+      bottom: 20px;
+      right: 20px;
+    }
+
+    .inicio-float img,
+    .whatsapp-float img {
+      width: 24px;
+      height: 24px;
+    }
+
+    .inicio-float:hover,
+    .whatsapp-float:hover {
+      transform: scale(1.2);
+      box-shadow: 4px 4px 12px rgba(0,0,0,0.4);
+    }
+  </style>
+</head>
+<body>
+  <nav>
+    <img src="Logos/LOGO.png" alt="Logo VORTEX">
+    <ul>
+      <li><a href="#inicio">Inicio</a></li>
+      <li><a href="#servicios">Servicios</a></li>
+      <li><a href="#deportes">Deportes</a></li>
+      <li><a href="#contacto">Contacto</a></li>
+    </ul>
+  </nav>
+
+  <div class="main-container">
+    <div class="portada">
+      <img src="Logos/LOGO_VORTEX.png" alt="Logo VORTEX Completo">
+    </div>
+
+    <main>
+      <section id="inicio">
+        <h2>Bienvenido a VORTEX</h2>
+        <p>Somos una empresa especializada en proveer <strong>soluciones deportivas integrales</strong> para torneos y ligas en Aguascalientes y la región. En VORTEX ofrecemos uniformes personalizados, equipamiento deportivo y paquetes completos para cubrir todas las necesidades de tu evento deportivo con calidad, estilo y puntualidad.</p>
+      </section>
+
+      <section id="servicios">
+        <h2>Nuestros Servicios</h2>
+        <ul>
+          <li>Diseño y confección de uniformes personalizados para jugadores, árbitros y staff técnico</li>
+          <li>Balones personalizados con el branding de tu liga o torneo</li>
+          <li>Redes de portería, redes perimetrales y equipo de juego</li>
+          <li>Accesorios complementarios para cada disciplina</li>
+          <li>Atención personalizada y entregas programadas</li>
+        </ul>
+      </section>
+
+      <section id="deportes">
+        <h2>Disciplinas que atendemos</h2>
+        <ul>
+          <li>⚽ Fútbol</li>
+          <li>🏀 Básquetbol</li>
+          <li>⚾ Béisbol</li>
+          <li>🏐 Voleibol</li>
+          <li>🚴‍♂️ Ciclismo</li>
+        </ul>
+      </section>
+
+      <section id="contacto">
+        <h2>Contáctanos</h2>
+        <p>¿Te gustaría cotizar un paquete para tu liga o torneo? Escríbenos por WhatsApp y con gusto te atendemos:</p>
+        <ul>
+          <li><a href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX">Julián Berumen – (449) 107 1025</a></li>
+          <li><a href="https://wa.me/524494336064?text=Informaci%C3%B3n%20sobre%20VORTEX">Alfredo Cuellar – (449) 433 6064</a></li>
+        </ul>
+      </section>
+    </main>
+  </div>
+
+  <a class="inicio-float" href="#inicio" title="Regresar al inicio">
+    <img src="https://cdn-icons-png.flaticon.com/512/892/892692.png" alt="Inicio">
+  </a>
+
+  <a class="whatsapp-float" href="https://wa.me/524491071025?text=Informaci%C3%B3n%20sobre%20VORTEX" target="_blank" title="Enviar mensaje por WhatsApp">
+    <img src="https://upload.wikimedia.org/wikipedia/commons/6/6b/WhatsApp.svg" alt="WhatsApp">
+  </a>
+</body>
+</html>
