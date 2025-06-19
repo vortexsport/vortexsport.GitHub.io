@@ -14,7 +14,8 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@latest/tabler-icons.min.css">
+    <!-- Tabler Icons: Pinned to a stable version to guarantee icon consistency. -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
 
     <style>
         body {
@@ -191,48 +192,61 @@
                 <!-- 3. ¿Qué ofrecemos? -->
                 <section id="que-ofrecemos" class="fade-in-section">
                     <h2 class="section-title">¿Qué ofrecemos?</h2>
-                    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
-                        <div class="vortex-card text-center p-6">
-                            <i class="ti ti-shirt text-5xl vortex-blue mx-auto mb-4"></i>
-                            <h3 class="font-semibold text-lg mb-2">Uniformes sublimados</h3>
+                    <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                        <!-- Tarjeta Principal -->
+                        <div class="vortex-card lg:col-span-2 flex flex-col md:flex-row items-center gap-8 p-8">
+                            <img src="Galeria/MOCKUP_UNIFORME.png" alt="Uniformes sublimados" class="w-full md:w-1/3 h-auto rounded-lg object-cover" onerror="this.onerror=null;this.src='https://placehold.co/400x400/0A3D62/FFFFFF?text=Uniforme';">
+                            <div class="text-center md:text-left">
+                                <i class="ti ti-shirt text-4xl vortex-blue mb-2"></i>
+                                <h3 class="font-bold text-2xl vortex-blue mb-3">Uniformes Sublimados</h3>
+                                <p class="text-gray-600">Creamos diseños 100% personalizados con tecnología de sublimación que garantiza colores vibrantes y durabilidad excepcional, sin importar la intensidad del juego.</p>
+                            </div>
                         </div>
-                        <div class="vortex-card text-center p-6">
-                            <i class="ti ti-users-group text-5xl vortex-blue mx-auto mb-4"></i>
-                            <h3 class="font-semibold text-lg mb-2">Kits completos</h3>
+                        <!-- Tarjeta Secundaria 1 -->
+                        <div class="vortex-card flex flex-col justify-center items-center text-center p-8">
+                            <i class="ti ti-users-group text-5xl vortex-blue mb-4"></i>
+                            <h3 class="font-semibold text-xl mb-2">Kits Completos</h3>
+                            <p class="text-gray-600 text-sm">Equipamos a jugadores, árbitros y staff para una imagen unificada y profesional.</p>
                         </div>
-                        <div class="vortex-card text-center p-6">
-                            <i class="ti ti-ball-football text-5xl vortex-blue mx-auto mb-4"></i>
-                            <h3 class="font-semibold text-lg mb-2">Balones personalizados</h3>
+                        <!-- Tarjeta Secundaria 2 -->
+                        <div class="vortex-card flex flex-col justify-center items-center text-center p-8">
+                           <i class="ti ti-ball-football text-5xl vortex-blue mb-4"></i>
+                            <h3 class="font-semibold text-xl mb-2">Balones Personalizados</h3>
+                            <p class="text-gray-600 text-sm">Lleva el escudo y los colores de tu equipo hasta en el balón de juego.</p>
                         </div>
-                        <div class="vortex-card text-center p-6">
-                            <i class="ti ti-goal text-5xl vortex-blue mx-auto mb-4"></i>
-                            <h3 class="font-semibold text-lg mb-2">Redes deportivas</h3>
+                        <!-- Tarjeta Secundaria 3 -->
+                        <div class="vortex-card flex flex-col justify-center items-center text-center p-8">
+                            <i class="ti ti-goal text-5xl vortex-blue mb-4"></i>
+                            <h3 class="font-semibold text-xl mb-2">Redes Deportivas</h3>
+                             <p class="text-gray-600 text-sm">Redes perimetrales y de portería de alta resistencia para cualquier disciplina.</p>
                         </div>
-                        <div class="vortex-card text-center p-6">
-                            <i class="ti ti-whistle text-5xl vortex-blue mx-auto mb-4"></i>
-                            <h3 class="font-semibold text-lg mb-2">Accesorios</h3>
+                         <!-- Tarjeta Secundaria 4 -->
+                        <div class="vortex-card flex flex-col justify-center items-center text-center p-8">
+                            <i class="ti ti-whistle text-5xl vortex-blue mb-4"></i>
+                            <h3 class="font-semibold text-xl mb-2">Accesorios</h3>
+                            <p class="text-gray-600 text-sm">Desde casacas de entrenamiento hasta equipo especializado para tus eventos.</p>
                         </div>
                     </div>
                 </section>
 
                 <!-- 4. Disciplinas -->
                 <section id="disciplinas" class="fade-in-section">
-                    <h2 class="section-title">Disciplinas que atendemos</h2>
+                    <h2 class="section-title">Disciplinas</h2>
                     <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6 md:gap-8">
                         <div class="vortex-card p-6 text-center">
                             <i class="ti ti-ball-football text-6xl vortex-blue mx-auto mb-3"></i>
                             <p class="font-bold text-xl">Fútbol</p>
                         </div>
                         <div class="vortex-card p-6 text-center">
-                           <i class="ti ti-basketball text-6xl vortex-blue mx-auto mb-3"></i>
+                           <i class="ti ti-ball-basketball text-6xl vortex-blue mx-auto mb-3"></i>
                             <p class="font-bold text-xl">Básquetbol</p>
                         </div>
                         <div class="vortex-card p-6 text-center">
-                            <i class="ti ti-baseball text-6xl vortex-blue mx-auto mb-3"></i>
+                            <i class="ti ti-ball-baseball text-6xl vortex-blue mx-auto mb-3"></i>
                             <p class="font-bold text-xl">Béisbol</p>
                         </div>
                         <div class="vortex-card p-6 text-center">
-                            <i class="ti ti-volleyball text-6xl vortex-blue mx-auto mb-3"></i>
+                            <i class="ti ti-ball-volleyball text-6xl vortex-blue mx-auto mb-3"></i>
                             <p class="font-bold text-xl">Voleibol</p>
                         </div>
                          <div class="vortex-card p-6 text-center col-span-2 md:col-span-1">
