@@ -35,7 +35,7 @@
             <div class="bg-white rounded-lg shadow-2xl p-4 w-80">
                 <form id="playerForm" class="grid grid-cols-1 gap-2">
                     <input id="playerName" placeholder="Nombre" class="border p-2 rounded" required />
-                    <input id="playerPhone" placeholder="Teléfono (XXX) XXX XXXX" pattern="\(\d{3}\) \d{3} \d{4}" class="border p-2 rounded" required />
+                    <input id="playerPhone" placeholder="Teléfono a 10 dígitos" pattern="\d{10}" class="border p-2 rounded" required />
                     <input id="playerAdscripcion" placeholder="Adscripción" class="border p-2 rounded" />
                     <input id="playerTurno" placeholder="Turno" class="border p-2 rounded" />
                     <input id="playerBase" placeholder="Tipo de base" class="border p-2 rounded" />
@@ -303,10 +303,13 @@ function refreshUI() {
 
 playerForm.onsubmit = async e => {
     e.preventDefault();
+    const phoneDigits = document.getElementById('playerPhone').value.replace(/\D/g, '');
+    const formattedPhone = phoneDigits.length === 10 ?
+        `(${phoneDigits.slice(0,3)}) ${phoneDigits.slice(3,6)} ${phoneDigits.slice(6)}` : phoneDigits;
     const data = {
         name: document.getElementById('playerName').value.trim(),
         category: currentCategory,
-        phone: document.getElementById('playerPhone').value.trim(),
+        phone: formattedPhone,
         adscripcion: document.getElementById('playerAdscripcion').value.trim(),
         turno: document.getElementById('playerTurno').value.trim(),
         base: document.getElementById('playerBase').value.trim(),
@@ -392,8 +395,8 @@ function renderPlayers(players) {
 }
 
 pairList.onclick = async e => {
-    if (e.target.dataset.edit) {
-        const id = e.target.dataset.edit;
+    if (e.target.closest('button')?.dataset.edit) {
+        const id = e.target.closest('button').dataset.edit;
         const pair = currentPairs.find(p => p.id === id);
         if (pair) {
             fillPlayerSelects();
@@ -402,8 +405,8 @@ pairList.onclick = async e => {
             editingPairId = id;
             pairModal.classList.remove('hidden');
         }
-    } else if (e.target.dataset.del) {
-        const id = e.target.dataset.del;
+    } else if (e.target.closest('button')?.dataset.del) {
+        const id = e.target.closest('button').dataset.del;
         if (confirm('Eliminar pareja?')) {
             await deleteDoc(doc(db, 'pairs', id));
         }
@@ -416,7 +419,7 @@ playerList.onclick = async e => {
         const player = currentPlayers.find(p => p.id === id);
         if (player) {
             document.getElementById('playerName').value = player.name;
-            document.getElementById('playerPhone').value = player.phone;
+            document.getElementById('playerPhone').value = player.phone.replace(/\D/g, '');
             document.getElementById('playerAdscripcion').value = player.adscripcion;
             document.getElementById('playerTurno').value = player.turno;
             document.getElementById('playerBase').value = player.base;
@@ -501,6 +504,7 @@ async function maybeGenerateFinals(pairs, matches) {
 
 
 function renderStats(stats) {
+    stats.sort((a,b) => b.jg - a.jg || (b.pf - b.pc) - (a.pf - a.pc));
     statsBody.innerHTML = '';
     stats.forEach(s => {
         const tr = document.createElement('tr');
@@ -522,8 +526,8 @@ function renderHistory(pairs, matches) {
 }
 
 historyList.onclick = async e => {
-    if (e.target.dataset.edit) {
-        const id = e.target.dataset.edit;
+    if (e.target.closest('button')?.dataset.edit) {
+        const id = e.target.closest('button').dataset.edit;
         const match = currentMatches.find(m => m.id === id);
         if (match) {
             pairASelect.value = match.pairA;
@@ -538,8 +542,8 @@ historyList.onclick = async e => {
             editingMatchId = id;
             matchModal.classList.remove('hidden');
         }
-    } else if (e.target.dataset.del) {
-        const id = e.target.dataset.del;
+    } else if (e.target.closest('button')?.dataset.del) {
+        const id = e.target.closest('button').dataset.del;
         if (confirm('Eliminar partido?')) {
             await deleteDoc(doc(db, 'matches', id));
         }
