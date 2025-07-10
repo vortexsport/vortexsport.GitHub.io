@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ISSEA | Torneo de Frontenis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 p-4">
+    <h1 class="text-3xl font-bold mb-4">Administrador de Torneo de Frontenis (ISSEA)</h1>
+
+    <section id="players" class="mb-8">
+        <h2 class="text-xl font-semibold mb-2">Jugadores</h2>
+        <form id="playerForm" class="mb-2">
+            <input type="text" id="playerName" placeholder="Nombre del jugador" class="border p-2 mr-2">
+            <button type="submit" class="bg-blue-500 text-white px-4 py-2">Agregar</button>
+        </form>
+        <ul id="playerList" class="list-disc pl-5"></ul>
+    </section>
+
+    <section id="schedule" class="mb-8">
+        <h2 class="text-xl font-semibold mb-2">Rol de Juegos</h2>
+        <button id="generateSchedule" class="bg-green-500 text-white px-4 py-2 mb-2">Generar rol de juegos</button>
+        <ul id="scheduleList" class="list-decimal pl-5"></ul>
+    </section>
+
+    <section id="bracket" class="mb-8">
+        <h2 class="text-xl font-semibold mb-2">Eliminatoria</h2>
+        <button id="generateBracket" class="bg-purple-500 text-white px-4 py-2 mb-2">Generar Eliminatoria</button>
+        <div id="bracketContainer" class="pl-5"></div>
+    </section>
+
+    <script>
+    let players = JSON.parse(localStorage.getItem('frontenisPlayers')) || [];
+    const playerList = document.getElementById('playerList');
+
+    function renderPlayers() {
+        playerList.innerHTML = '';
+        players.forEach((player, index) => {
+            const li = document.createElement('li');
+            li.className = 'flex items-center mb-1';
+            li.textContent = player;
+            const removeBtn = document.createElement('button');
+            removeBtn.textContent = 'x';
+            removeBtn.className = 'ml-2 text-red-500';
+            removeBtn.onclick = () => {
+                players.splice(index, 1);
+                localStorage.setItem('frontenisPlayers', JSON.stringify(players));
+                renderPlayers();
+            };
+            li.appendChild(removeBtn);
+            playerList.appendChild(li);
+        });
+    }
+    renderPlayers();
+
+    document.getElementById('playerForm').onsubmit = e => {
+        e.preventDefault();
+        const name = document.getElementById('playerName').value.trim();
+        if (name) {
+            players.push(name);
+            document.getElementById('playerName').value = '';
+            localStorage.setItem('frontenisPlayers', JSON.stringify(players));
+            renderPlayers();
+        }
+    };
+
+    document.getElementById('generateSchedule').onclick = () => {
+        if (players.length < 2) return alert('Se necesitan al menos dos jugadores');
+        const scheduleList = document.getElementById('scheduleList');
+        scheduleList.innerHTML = '';
+        for (let i = 0; i < players.length; i++) {
+            for (let j = i + 1; j < players.length; j++) {
+                const li = document.createElement('li');
+                li.textContent = players[i] + ' vs ' + players[j];
+                scheduleList.appendChild(li);
+            }
+        }
+    };
+
+    document.getElementById('generateBracket').onclick = () => {
+        if (players.length < 2) return alert('Se necesitan al menos dos jugadores');
+        const container = document.getElementById('bracketContainer');
+        container.innerHTML = '';
+        for (let i = 0; i < players.length; i += 2) {
+            const p1 = players[i];
+            const p2 = players[i + 1] || 'BYE';
+            const div = document.createElement('div');
+            div.textContent = p1 + ' vs ' + p2;
+            container.appendChild(div);
+        }
+    };
+    </script>
+</body>
+</html>
