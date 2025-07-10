@@ -80,24 +80,32 @@
 
     <section id="matchSection" class="mb-10">
         <h2 class="text-xl font-semibold mb-2">Registrar Partido</h2>
-        <div class="mb-2">
+        <div class="mb-2 space-x-2">
             <button id="generateSchedule" class="bg-blue-600 text-white rounded p-2">Generar Calendario</button>
+            <button id="openMatchModal" class="bg-green-600 text-white rounded p-2">Registrar Partido</button>
         </div>
-        <form id="matchForm" class="grid grid-cols-2 gap-2 items-center">
-            <select id="daySelect" class="border p-2 rounded"></select>
-            <select id="courtSelect" class="border p-2 rounded">
-                <option value="">Cancha</option>
-                <option value="1">Cancha 1</option>
-                <option value="2">Cancha 2</option>
-            </select>
-            <select id="timeSelect" class="border p-2 rounded"></select>
-            <select id="pairA" class="border p-2 rounded"></select>
-            <input id="scoreA" type="number" min="0" class="border p-2 rounded" />
-            <span class="col-span-2 text-center">vs</span>
-            <select id="pairB" class="border p-2 rounded"></select>
-            <input id="scoreB" type="number" min="0" class="border p-2 rounded" />
-            <button type="submit" class="bg-green-600 text-white rounded p-2 col-span-2">Registrar</button>
-        </form>
+        <div id="matchModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
+            <div class="bg-white rounded-lg shadow-2xl p-4 w-80">
+                <form id="matchForm" class="grid grid-cols-2 gap-2 items-center">
+                    <select id="daySelect" class="border p-2 rounded"></select>
+                    <select id="courtSelect" class="border p-2 rounded">
+                        <option value="">Cancha</option>
+                        <option value="1">Cancha 1</option>
+                        <option value="2">Cancha 2</option>
+                    </select>
+                    <select id="timeSelect" class="border p-2 rounded"></select>
+                    <select id="pairA" class="border p-2 rounded"></select>
+                    <input id="scoreA" type="number" min="0" class="border p-2 rounded" />
+                    <span class="col-span-2 text-center">vs</span>
+                    <select id="pairB" class="border p-2 rounded"></select>
+                    <input id="scoreB" type="number" min="0" class="border p-2 rounded" />
+                    <div class="col-span-2 flex justify-end space-x-2">
+                        <button type="button" id="closeMatchModal" class="px-3 py-1 rounded border">Cancelar</button>
+                        <button type="submit" class="bg-green-600 text-white rounded px-3 py-1">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
     </section>
 
     <section id="statsSection" class="mb-10">
@@ -147,6 +155,9 @@ const pairList = document.getElementById('pairList');
 const pairASelect = document.getElementById('pairA');
 const pairBSelect = document.getElementById('pairB');
 const matchForm = document.getElementById('matchForm');
+const matchModal = document.getElementById('matchModal');
+const openMatchModalBtn = document.getElementById('openMatchModal');
+const closeMatchModalBtn = document.getElementById('closeMatchModal');
 const courtSelect = document.getElementById('courtSelect');
 const timeSelect = document.getElementById('timeSelect');
 const daySelect = document.getElementById('daySelect');
@@ -201,6 +212,19 @@ openPairModalBtn.onclick = () => {
     pairModal.classList.remove('hidden');
 };
 closePairModalBtn.onclick = () => pairModal.classList.add('hidden');
+
+openMatchModalBtn.onclick = () => {
+    matchForm.reset();
+    matchForm.dataset.stage = 'RR';
+    editingMatchId = null;
+    fillDayOptions();
+    fillTimeOptions();
+    matchModal.classList.remove('hidden');
+};
+closeMatchModalBtn.onclick = () => {
+    matchModal.classList.add('hidden');
+    editingMatchId = null;
+};
 
 categoryTabs.forEach(t => {
     t.addEventListener('click', () => {
@@ -270,6 +294,8 @@ function refreshUI() {
     renderPairs(pairs);
     renderStats(computeStats(pairs, matches.filter(m => (m.stage || 'RR') === 'RR')));
     renderHistory(pairs, matches);
+    maybeGenerateElimination(pairs, matches);
+    maybeGenerateFinals(pairs, matches);
     renderElimination(pairs, matches);
     fillDayOptions();
     fillTimeOptions();
@@ -335,6 +361,7 @@ matchForm.onsubmit = async e => {
     }
     matchForm.reset();
     fillTimeOptions();
+    matchModal.classList.add('hidden');
 };
 
 function renderPairs(pairs) {
@@ -421,6 +448,57 @@ function computeStats(pairs, matches) {
     return Object.values(stats);
 }
 
+async function maybeGenerateElimination(pairs, matches) {
+    const rrMatches = matches.filter(m => (m.stage || 'RR') === 'RR');
+    const sfMatches = matches.filter(m => m.stage === 'SF');
+    const expected = pairs.length * (pairs.length - 1) / 2;
+    if (sfMatches.length || rrMatches.length < expected || pairs.length < 4) return;
+    const stats = computeStats(pairs, rrMatches);
+    stats.sort((a,b) => b.jg - a.jg || (b.pf - b.pc) - (a.pf - a.pc));
+    const top4 = stats.slice(0,4);
+    if (top4.length < 4) return;
+    const pad = n => n.toString().padStart(2,'0');
+    const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const last = new Date(availableDays[availableDays.length-1]);
+    last.setDate(last.getDate()+7);
+    const day = fmt(last);
+    const ts = Date.now();
+    const games = [
+        {pairA:top4[0].id, pairB:top4[3].id, day, court:courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'SF', match:'SF1', category:currentCategory, ts},
+        {pairA:top4[1].id, pairB:top4[2].id, day, court:courts[1]||courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'SF', match:'SF2', category:currentCategory, ts}
+    ];
+    for (const g of games) {
+        await addDoc(collection(db,'matches'), g);
+    }
+}
+
+async function maybeGenerateFinals(pairs, matches) {
+    const sf1 = matches.find(m => m.stage === 'SF' && m.match === 'SF1');
+    const sf2 = matches.find(m => m.stage === 'SF' && m.match === 'SF2');
+    if (!sf1 || !sf2) return;
+    const finalExists = matches.some(m => m.stage === 'F');
+    const thirdExists = matches.some(m => m.stage === '3P');
+    if (finalExists && thirdExists) return;
+    if (sf1.scoreA === sf1.scoreB && sf1.scoreA === 0) return;
+    if (sf2.scoreA === sf2.scoreB && sf2.scoreA === 0) return;
+    const pad = n => n.toString().padStart(2,'0');
+    const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
+    const sfDay = new Date(sf1.day);
+    sfDay.setDate(sfDay.getDate()+7);
+    const day = fmt(sfDay);
+    const ts = Date.now();
+    const win1 = sf1.scoreA > sf1.scoreB ? sf1.pairA : sf1.pairB;
+    const win2 = sf2.scoreA > sf2.scoreB ? sf2.pairA : sf2.pairB;
+    const lose1 = sf1.scoreA > sf1.scoreB ? sf1.pairB : sf1.pairA;
+    const lose2 = sf2.scoreA > sf2.scoreB ? sf2.pairB : sf2.pairA;
+    if (!finalExists) {
+        await addDoc(collection(db,'matches'), {pairA:win1, pairB:win2, day, court:courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'F', match:'F', category:currentCategory, ts});
+    }
+    if (!thirdExists) {
+        await addDoc(collection(db,'matches'), {pairA:lose1, pairB:lose2, day, court:courts[1]||courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'3P', match:'3P', category:currentCategory, ts});
+    }
+}
+
 
 function renderStats(stats) {
     statsBody.innerHTML = '';
@@ -458,6 +536,7 @@ historyList.onclick = async e => {
             timeSelect.value = match.time || '';
             matchForm.dataset.stage = match.stage || 'RR';
             editingMatchId = id;
+            matchModal.classList.remove('hidden');
         }
     } else if (e.target.dataset.del) {
         const id = e.target.dataset.del;
@@ -589,7 +668,66 @@ function renderElimination(pairs, matches) {
         return form;
     };
 
+    const createThirdForm = (existing) => {
+        if (!sf1 || !sf2) {
+            const div = document.createElement('div');
+            div.textContent = 'Esperando semifinales.';
+            return div;
+        }
+        const losers = [];
+        [sf1, sf2].forEach(sf => {
+            if (sf.scoreA > sf.scoreB) losers.push(sf.pairB); else if (sf.scoreB > sf.scoreA) losers.push(sf.pairA);
+        });
+        if (losers.length < 2) {
+            const div = document.createElement('div');
+            div.textContent = 'Esperando semifinales.';
+            return div;
+        }
+        const form = document.createElement('form');
+        form.className = 'grid grid-cols-2 gap-2 items-center mt-4';
+        form.dataset.stage = '3P';
+        form.innerHTML = `
+            <span class="col-span-2 font-semibold">Tercer Lugar</span>
+            <select class="border p-2 rounded" name="a"></select>
+            <input class="border p-2 rounded" name="sa" type="number" min="0" />
+            <span class="col-span-2 text-center">vs</span>
+            <select class="border p-2 rounded" name="b"></select>
+            <input class="border p-2 rounded" name="sb" type="number" min="0" />
+            <button type="submit" class="bg-green-600 text-white rounded p-2 col-span-2">Guardar</button>`;
+        const selA = form.querySelector('select[name="a"]');
+        const selB = form.querySelector('select[name="b"]');
+        losers.forEach((id,idx)=>{
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = map[id];
+            if(idx===0) selA.appendChild(opt); else selB.appendChild(opt);
+        });
+        if (existing) {
+            selA.value = existing.pairA;
+            selB.value = existing.pairB;
+            form.querySelector('input[name="sa"]').value = existing.scoreA;
+            form.querySelector('input[name="sb"]').value = existing.scoreB;
+        }
+        form.onsubmit = async ev => {
+            ev.preventDefault();
+            const pairA = selA.value;
+            const pairB = selB.value;
+            const scoreA = parseInt(form.querySelector('input[name="sa"]').value)||0;
+            const scoreB = parseInt(form.querySelector('input[name="sb"]').value)||0;
+            const data = { pairA, pairB, scoreA, scoreB, stage:'3P', ts:Date.now() };
+            if (existing) {
+                await updateDoc(doc(db,'matches', existing.id), data);
+            } else {
+                await addDoc(collection(db,'matches'), data);
+            }
+            form.reset();
+        };
+        return form;
+    };
+
     eliminationBracket.appendChild(createFinalForm(fMatch));
+    const thirdMatch = matches.find(m => m.stage === '3P');
+    eliminationBracket.appendChild(createThirdForm(thirdMatch));
 }
 
 async function loadData() {
