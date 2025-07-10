@@ -14,6 +14,12 @@
         <button id="tabSegunda" data-category="Segunda" class="px-4 py-2 bg-gray-200 rounded">Segunda</button>
     </div>
 
+    <div class="flex justify-center mb-6 space-x-2">
+        <button id="exportDBBtn" class="px-4 py-2 bg-green-600 text-white rounded">Exportar BD</button>
+        <label for="importDBInput" class="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">Importar BD</label>
+        <input type="file" id="importDBInput" accept=".json" class="hidden" />
+    </div>
+
     <section id="infoSection" class="mb-10">
         <h2 class="text-xl font-semibold mb-2">Información del Torneo</h2>
         <p class="mb-2">El torneo se llevará a cabo en el <strong>Deportivo IV Centenario</strong> de Aguascalientes.</p>
@@ -111,7 +117,7 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, onSnapshot, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, updateDoc, deleteDoc, doc, setDoc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
 
 // TODO: Reemplaza con la configuración de tu proyecto Firebase
 const firebaseConfig = {
@@ -577,6 +583,54 @@ async function loadData() {
     renderPlayers(players);
     refreshUI();
 }
+
+async function exportDatabase() {
+    const [pairSnap, matchSnap, playerSnap] = await Promise.all([
+        getDocs(collection(db, 'pairs')),
+        getDocs(collection(db, 'matches')),
+        getDocs(collection(db, 'players'))
+    ]);
+    const data = {
+        pairs: pairSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+        matches: matchSnap.docs.map(d => ({ id: d.id, ...d.data() })),
+        players: playerSnap.docs.map(d => ({ id: d.id, ...d.data() }))
+    };
+    const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'torneo-datos.json';
+    a.click();
+    URL.revokeObjectURL(url);
+}
+
+async function importDatabase(file) {
+    const text = await file.text();
+    const data = JSON.parse(text);
+    if (data.players) {
+        for (const p of data.players) {
+            await setDoc(doc(db, 'players', p.id), p);
+        }
+    }
+    if (data.pairs) {
+        for (const p of data.pairs) {
+            await setDoc(doc(db, 'pairs', p.id), p);
+        }
+    }
+    if (data.matches) {
+        for (const m of data.matches) {
+            await setDoc(doc(db, 'matches', m.id), m);
+        }
+    }
+    alert('Datos importados correctamente');
+}
+
+document.getElementById('exportDBBtn').addEventListener('click', exportDatabase);
+document.getElementById('importDBInput').addEventListener('change', e => {
+    if (e.target.files[0]) {
+        importDatabase(e.target.files[0]);
+    }
+});
 
 onSnapshot(collection(db, 'pairs'), loadData);
 onSnapshot(collection(db, 'matches'), loadData);
