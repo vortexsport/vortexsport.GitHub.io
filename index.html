@@ -112,6 +112,17 @@
             visibility: visible;
             opacity: 1;
         }
+        .glass-container {
+            background: rgba(255, 255, 255, 0.25);
+            border-radius: 1rem;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5);
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
+            border-top: 2px solid rgba(255, 255, 255, 0.6);
+            border-left: 2px solid rgba(255, 255, 255, 0.6);
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            border-right: 2px solid rgba(255, 255, 255, 0.1);
+        }
     </style>
 </head>
 <body class="overflow-x-hidden">
@@ -178,7 +189,7 @@
 
             <!-- 1. Portada (Hero Section) -->
             <section id="inicio" class="h-screen bg-cover bg-center flex items-center justify-center" style="background-image: url('Fondo.jpg');">
-                <div class="relative text-center">
+                <div class="glass-container p-6 md:p-10 text-center">
                     <!-- Logo para Desktop -->
                     <img src="Logos/LOGO_VORTEX.png" alt="VORTEX logo" class="hidden md:block w-auto h-24 md:h-36 mx-auto">
                     <!-- Logo para Mobile/Tablet -->
