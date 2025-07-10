@@ -165,7 +165,7 @@
             </header>
             
             <!-- Menú Móvil (Oculto por defecto) -->
-            <div id="mobile-menu" class="fixed inset-0 bg-black/50 z-40 hidden" aria-hidden="true">
+            <div id="mobile-menu" class="fixed inset-0 bg-black/50 z-40 hidden" aria-hidden="true" inert>
                 <div id="mobile-menu-panel" class="fixed top-0 right-0 h-full w-64 bg-white shadow-xl transform translate-x-full transition-transform duration-300 ease-in-out">
                     <div class="p-6">
                          <button id="close-mobile-menu" class="absolute top-4 right-4 text-gray-500 hover:text-black">
@@ -468,17 +468,23 @@
 
             const openMenu = () => {
                 mobileMenu.classList.remove('hidden');
+                mobileMenu.removeAttribute('aria-hidden');
+                mobileMenu.removeAttribute('inert');
                 document.body.style.overflow = 'hidden';
                 setTimeout(() => {
                     mobileMenuPanel.classList.remove('translate-x-full');
+                    closeMobileMenuButton.focus();
                 }, 10);
             };
 
             const closeMenu = () => {
                 mobileMenuPanel.classList.add('translate-x-full');
                 document.body.style.overflow = '';
+                mobileMenuButton.focus();
                 setTimeout(() => {
                     mobileMenu.classList.add('hidden');
+                    mobileMenu.setAttribute('aria-hidden', 'true');
+                    mobileMenu.setAttribute('inert', '');
                 }, 300);
             };
 
