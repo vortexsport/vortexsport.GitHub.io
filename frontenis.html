@@ -394,17 +394,6 @@ function computeStats(pairs, matches) {
     return Object.values(stats);
 }
 
-async function generateFakePairs() {
-    const names = ['Ana','Beto','Carlos','Diana','Eduardo','Fernanda','Gabriel','Helena','Ivan','Julia','Kevin','Laura','Miguel','Nora','Oscar','Patricia'];
-    let idx = 0;
-    for (const cat of ['Primera','Segunda']) {
-        for (let i=0;i<4;i++) {
-            const z = names[idx++ % names.length];
-            const d = names[idx++ % names.length];
-            await addDoc(collection(db,'pairs'), {zaguero:z, delantero:d, category:cat});
-        }
-    }
-}
 
 function renderStats(stats) {
     statsBody.innerHTML = '';
@@ -586,10 +575,6 @@ async function loadData() {
     currentMatches = matches;
     currentPlayers = players;
     renderPlayers(players);
-    if (currentPairs.length === 0) {
-        await generateFakePairs();
-        return;
-    }
     refreshUI();
 }
 
