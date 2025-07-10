@@ -29,11 +29,6 @@
             <div class="bg-white rounded-lg shadow-2xl p-4 w-80">
                 <form id="playerForm" class="grid grid-cols-1 gap-2">
                     <input id="playerName" placeholder="Nombre" class="border p-2 rounded" required />
-                    <select id="playerCategory" class="border p-2 rounded" required>
-                        <option value="">Categoría</option>
-                        <option value="Primera">Primera</option>
-                        <option value="Segunda">Segunda</option>
-                    </select>
                     <input id="playerPhone" placeholder="Teléfono (XXX) XXX XXXX" pattern="\(\d{3}\) \d{3} \d{4}" class="border p-2 rounded" required />
                     <input id="playerAdscripcion" placeholder="Adscripción" class="border p-2 rounded" />
                     <input id="playerTurno" placeholder="Turno" class="border p-2 rounded" />
@@ -80,6 +75,12 @@
     <section id="matchSection" class="mb-10">
         <h2 class="text-xl font-semibold mb-2">Registrar Partido</h2>
         <form id="matchForm" class="grid grid-cols-2 gap-2 items-center">
+            <select id="courtSelect" class="border p-2 rounded">
+                <option value="">Cancha</option>
+                <option value="1">Cancha 1</option>
+                <option value="2">Cancha 2</option>
+            </select>
+            <select id="timeSelect" class="border p-2 rounded"></select>
             <select id="pairA" class="border p-2 rounded"></select>
             <input id="scoreA" type="number" min="0" class="border p-2 rounded" />
             <span class="col-span-2 text-center">vs</span>
@@ -136,6 +137,8 @@ const pairList = document.getElementById('pairList');
 const pairASelect = document.getElementById('pairA');
 const pairBSelect = document.getElementById('pairB');
 const matchForm = document.getElementById('matchForm');
+const courtSelect = document.getElementById('courtSelect');
+const timeSelect = document.getElementById('timeSelect');
 const statsBody = document.getElementById('statsBody');
 const historyList = document.getElementById('historyList');
 const eliminationBracket = document.getElementById('eliminationBracket');
@@ -160,6 +163,8 @@ openPlayerModalBtn.onclick = () => {
     playerModal.classList.remove('hidden');
 };
 closePlayerModalBtn.onclick = () => playerModal.classList.add('hidden');
+
+courtSelect.onchange = fillTimeOptions;
 
 openPairModalBtn.onclick = () => {
     fillPlayerSelects();
@@ -200,6 +205,40 @@ function fillPlayerSelects() {
     });
 }
 
+function formatTime(t) {
+    const [h,m] = t.split(':').map(Number);
+    const hour = ((h + 11) % 12) + 1;
+    const suf = h >= 12 ? 'PM' : 'AM';
+    return `${hour}:${m.toString().padStart(2,'0')} ${suf}`;
+}
+
+function fillTimeOptions() {
+    const times = [];
+    for (let h = 16; h < 20; h++) {
+        times.push(`${h}:00`);
+        times.push(`${h}:30`);
+    }
+    timeSelect.innerHTML = '<option value="">Horario</option>';
+    const selectedCourt = courtSelect.value;
+    const taken = currentMatches.filter(m => m.court === selectedCourt && (!editingMatchId || m.id !== editingMatchId)).map(m => m.time);
+    times.forEach(t => {
+        if (selectedCourt && taken.includes(t)) return;
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = formatTime(t);
+        timeSelect.appendChild(opt);
+    });
+    if (editingMatchId) {
+        const match = currentMatches.find(m => m.id === editingMatchId);
+        if (match && match.court === selectedCourt && !times.includes(match.time)) {
+            const opt = document.createElement('option');
+            opt.value = match.time;
+            opt.textContent = formatTime(match.time);
+            timeSelect.appendChild(opt);
+        }
+    }
+}
+
 function refreshUI() {
     const pairs = currentPairs.filter(p => p.category === currentCategory);
     const matches = currentMatches.filter(m => m.category === currentCategory);
@@ -207,20 +246,21 @@ function refreshUI() {
     renderStats(computeStats(pairs, matches.filter(m => (m.stage || 'RR') === 'RR')));
     renderHistory(pairs, matches);
     renderElimination(pairs, matches);
+    fillTimeOptions();
 }
 
 playerForm.onsubmit = async e => {
     e.preventDefault();
     const data = {
         name: document.getElementById('playerName').value.trim(),
-        category: document.getElementById('playerCategory').value,
+        category: currentCategory,
         phone: document.getElementById('playerPhone').value.trim(),
         adscripcion: document.getElementById('playerAdscripcion').value.trim(),
         turno: document.getElementById('playerTurno').value.trim(),
         base: document.getElementById('playerBase').value.trim(),
         talla: document.getElementById('playerTalla').value.trim()
     };
-    if (!data.name || !data.category) return;
+    if (!data.name) return;
     if (editingPlayerId) {
         await updateDoc(doc(db, 'players', editingPlayerId), data);
         editingPlayerId = null;
@@ -251,11 +291,15 @@ matchForm.onsubmit = async e => {
     e.preventDefault();
     const pairA = pairASelect.value;
     const pairB = pairBSelect.value;
+    const court = courtSelect.value;
+    const time = timeSelect.value;
     const scoreA = parseInt(document.getElementById('scoreA').value) || 0;
     const scoreB = parseInt(document.getElementById('scoreB').value) || 0;
-    if (!pairA || !pairB || pairA === pairB) return;
+    if (!pairA || !pairB || pairA === pairB || !court || !time) return;
+    const conflict = currentMatches.some(m => m.category === currentCategory && m.court === court && m.time === time && m.id !== editingMatchId);
+    if (conflict) { alert('Horario no disponible'); return; }
     const stage = matchForm.dataset.stage || 'RR';
-    const data = { pairA, pairB, scoreA, scoreB, stage, category: currentCategory, ts: Date.now() };
+    const data = { pairA, pairB, scoreA, scoreB, stage, category: currentCategory, court, time, ts: Date.now() };
     if (editingMatchId) {
         await updateDoc(doc(db, 'matches', editingMatchId), data);
         editingMatchId = null;
@@ -263,6 +307,7 @@ matchForm.onsubmit = async e => {
         await addDoc(collection(db, 'matches'), data);
     }
     matchForm.reset();
+    fillTimeOptions();
 };
 
 function renderPairs(pairs) {
@@ -317,7 +362,6 @@ playerList.onclick = async e => {
         const player = currentPlayers.find(p => p.id === id);
         if (player) {
             document.getElementById('playerName').value = player.name;
-            document.getElementById('playerCategory').value = player.category;
             document.getElementById('playerPhone').value = player.phone;
             document.getElementById('playerAdscripcion').value = player.adscripcion;
             document.getElementById('playerTurno').value = player.turno;
@@ -350,6 +394,18 @@ function computeStats(pairs, matches) {
     return Object.values(stats);
 }
 
+async function generateFakePairs() {
+    const names = ['Ana','Beto','Carlos','Diana','Eduardo','Fernanda','Gabriel','Helena','Ivan','Julia','Kevin','Laura','Miguel','Nora','Oscar','Patricia'];
+    let idx = 0;
+    for (const cat of ['Primera','Segunda']) {
+        for (let i=0;i<4;i++) {
+            const z = names[idx++ % names.length];
+            const d = names[idx++ % names.length];
+            await addDoc(collection(db,'pairs'), {zaguero:z, delantero:d, category:cat});
+        }
+    }
+}
+
 function renderStats(stats) {
     statsBody.innerHTML = '';
     stats.forEach(s => {
@@ -366,7 +422,7 @@ function renderHistory(pairs, matches) {
     matches.forEach(m => {
         const stage = m.stage || 'RR';
         const li = document.createElement('li');
-        li.innerHTML = `${stage}: ${map[m.pairA] || '?'} ${m.scoreA}-${m.scoreB} ${map[m.pairB] || '?'} <button data-edit="${m.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${m.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
+        li.innerHTML = `${stage}: ${map[m.pairA] || '?'} ${m.scoreA}-${m.scoreB} ${map[m.pairB] || '?'} (C${m.court || '?'} ${m.time ? formatTime(m.time) : ''}) <button data-edit="${m.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${m.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
         historyList.appendChild(li);
     });
 }
@@ -380,6 +436,9 @@ historyList.onclick = async e => {
             pairBSelect.value = match.pairB;
             document.getElementById('scoreA').value = match.scoreA;
             document.getElementById('scoreB').value = match.scoreB;
+            courtSelect.value = match.court || '';
+            fillTimeOptions();
+            timeSelect.value = match.time || '';
             matchForm.dataset.stage = match.stage || 'RR';
             editingMatchId = id;
         }
@@ -527,6 +586,10 @@ async function loadData() {
     currentMatches = matches;
     currentPlayers = players;
     renderPlayers(players);
+    if (currentPairs.length === 0) {
+        await generateFakePairs();
+        return;
+    }
     refreshUI();
 }
 
