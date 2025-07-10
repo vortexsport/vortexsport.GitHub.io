@@ -19,6 +19,16 @@
         <ul id="pairList" class="mt-4 space-y-1 text-sm"></ul>
     </section>
 
+    <section id="historySection" class="mb-10">
+        <h2 class="text-xl font-semibold mb-2">Historial de Partidos</h2>
+        <ul id="historyList" class="space-y-1 text-sm"></ul>
+    </section>
+
+    <section id="eliminationSection" class="mb-10">
+        <h2 class="text-xl font-semibold mb-2">Eliminatorias</h2>
+        <div id="eliminationBracket" class="space-y-2 text-sm"></div>
+    </section>
+
     <section id="matchSection" class="mb-10">
         <h2 class="text-xl font-semibold mb-2">Registrar Partido</h2>
         <form id="matchForm" class="grid grid-cols-2 gap-2 items-center">
@@ -52,7 +62,7 @@
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
-import { getFirestore, collection, addDoc, getDocs, onSnapshot } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
+import { getFirestore, collection, addDoc, getDocs, onSnapshot, updateDoc, deleteDoc, doc } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js';
 
 // TODO: Reemplaza con la configuración de tu proyecto Firebase
 const firebaseConfig = {
@@ -76,15 +86,26 @@ const pairASelect = document.getElementById('pairA');
 const pairBSelect = document.getElementById('pairB');
 const matchForm = document.getElementById('matchForm');
 const statsBody = document.getElementById('statsBody');
+const historyList = document.getElementById('historyList');
+const eliminationBracket = document.getElementById('eliminationBracket');
+
+let currentPairs = [];
+let currentMatches = [];
+let editingPairId = null;
+let editingMatchId = null;
 
 pairForm.onsubmit = async e => {
     e.preventDefault();
     const zaguero = zagueroInput.value.trim();
     const delantero = delanteroInput.value.trim();
     if (!zaguero || !delantero) return;
-    await addDoc(collection(db, 'pairs'), { zaguero, delantero });
-    zagueroInput.value = '';
-    delanteroInput.value = '';
+    if (editingPairId) {
+        await updateDoc(doc(db, 'pairs', editingPairId), { zaguero, delantero });
+        editingPairId = null;
+    } else {
+        await addDoc(collection(db, 'pairs'), { zaguero, delantero });
+    }
+    pairForm.reset();
 };
 
 matchForm.onsubmit = async e => {
@@ -94,7 +115,13 @@ matchForm.onsubmit = async e => {
     const scoreA = parseInt(document.getElementById('scoreA').value) || 0;
     const scoreB = parseInt(document.getElementById('scoreB').value) || 0;
     if (!pairA || !pairB || pairA === pairB) return;
-    await addDoc(collection(db, 'matches'), { pairA, pairB, scoreA, scoreB, ts: Date.now() });
+    const stage = matchForm.dataset.stage || 'RR';
+    if (editingMatchId) {
+        await updateDoc(doc(db, 'matches', editingMatchId), { pairA, pairB, scoreA, scoreB, stage });
+        editingMatchId = null;
+    } else {
+        await addDoc(collection(db, 'matches'), { pairA, pairB, scoreA, scoreB, stage, ts: Date.now() });
+    }
     matchForm.reset();
 };
 
@@ -104,7 +131,7 @@ function renderPairs(pairs) {
     pairBSelect.innerHTML = '<option value="">Pareja B</option>';
     pairs.forEach(p => {
         const li = document.createElement('li');
-        li.textContent = `${p.zaguero} / ${p.delantero}`;
+        li.innerHTML = `${p.zaguero} / ${p.delantero} <button data-edit="${p.id}" class="text-blue-600">Editar</button> <button data-del="${p.id}" class="text-red-600">Borrar</button>`;
         pairList.appendChild(li);
 
         const optA = document.createElement('option');
@@ -116,9 +143,26 @@ function renderPairs(pairs) {
     });
 }
 
+pairList.onclick = async e => {
+    if (e.target.dataset.edit) {
+        const id = e.target.dataset.edit;
+        const pair = currentPairs.find(p => p.id === id);
+        if (pair) {
+            zagueroInput.value = pair.zaguero;
+            delanteroInput.value = pair.delantero;
+            editingPairId = id;
+        }
+    } else if (e.target.dataset.del) {
+        const id = e.target.dataset.del;
+        if (confirm('Eliminar pareja?')) {
+            await deleteDoc(doc(db, 'pairs', id));
+        }
+    }
+};
+
 function computeStats(pairs, matches) {
     const stats = {};
-    pairs.forEach(p => stats[p.id] = { name: `${p.zaguero} / ${p.delantero}`, jj:0, jg:0, jp:0, pf:0, pc:0 });
+    pairs.forEach(p => stats[p.id] = { id: p.id, name: `${p.zaguero} / ${p.delantero}`, jj:0, jg:0, jp:0, pf:0, pc:0 });
     matches.forEach(m => {
         const a = stats[m.pairA];
         const b = stats[m.pairB];
@@ -141,13 +185,174 @@ function renderStats(stats) {
     });
 }
 
+function renderHistory(pairs, matches) {
+    const map = Object.fromEntries(pairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
+    historyList.innerHTML = '';
+    matches.sort((a,b) => a.ts - b.ts);
+    matches.forEach(m => {
+        const stage = m.stage || 'RR';
+        const li = document.createElement('li');
+        li.innerHTML = `${stage}: ${map[m.pairA] || '?'} ${m.scoreA}-${m.scoreB} ${map[m.pairB] || '?'} <button data-edit="${m.id}" class="text-blue-600">Editar</button> <button data-del="${m.id}" class="text-red-600">Borrar</button>`;
+        historyList.appendChild(li);
+    });
+}
+
+historyList.onclick = async e => {
+    if (e.target.dataset.edit) {
+        const id = e.target.dataset.edit;
+        const match = currentMatches.find(m => m.id === id);
+        if (match) {
+            pairASelect.value = match.pairA;
+            pairBSelect.value = match.pairB;
+            document.getElementById('scoreA').value = match.scoreA;
+            document.getElementById('scoreB').value = match.scoreB;
+            matchForm.dataset.stage = match.stage || 'RR';
+            editingMatchId = id;
+        }
+    } else if (e.target.dataset.del) {
+        const id = e.target.dataset.del;
+        if (confirm('Eliminar partido?')) {
+            await deleteDoc(doc(db, 'matches', id));
+        }
+    }
+};
+
+function renderElimination(pairs, matches) {
+    const rrMatches = matches.filter(m => (m.stage || 'RR') === 'RR');
+    const stats = computeStats(pairs, rrMatches);
+    stats.sort((a,b) => b.jg - a.jg || (b.pf - b.pc) - (a.pf - a.pc));
+    const top4 = stats.slice(0,4);
+    const map = Object.fromEntries(pairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
+    const sfMatches = matches.filter(m => m.stage === 'SF');
+    const fMatch = matches.find(m => m.stage === 'F');
+
+    eliminationBracket.innerHTML = '';
+    if (top4.length < 4) {
+        eliminationBracket.textContent = 'Esperando resultados de ronda inicial.';
+        return;
+    }
+
+    const sf1 = sfMatches.find(m => m.match === 'SF1');
+    const sf2 = sfMatches.find(m => m.match === 'SF2');
+
+    const createSFForm = (label, aId, bId, dataMatch, existing) => {
+        const form = document.createElement('form');
+        form.className = 'grid grid-cols-2 gap-2 items-center';
+        form.dataset.stage = 'SF';
+        form.dataset.match = dataMatch;
+        form.innerHTML = `
+            <span class="col-span-2 font-semibold">${label}</span>
+            <select class="border p-2 rounded" name="a"></select>
+            <input class="border p-2 rounded" name="sa" type="number" min="0" />
+            <span class="col-span-2 text-center">vs</span>
+            <select class="border p-2 rounded" name="b"></select>
+            <input class="border p-2 rounded" name="sb" type="number" min="0" />
+            <button type="submit" class="bg-green-600 text-white rounded p-2 col-span-2">Guardar</button>`;
+        const selA = form.querySelector('select[name="a"]');
+        const selB = form.querySelector('select[name="b"]');
+        [aId,bId].forEach((id,idx) => {
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = map[id];
+            if (idx===0) selA.appendChild(opt); else selB.appendChild(opt);
+        });
+        if (existing) {
+            selA.value = existing.pairA;
+            selB.value = existing.pairB;
+            form.querySelector('input[name="sa"]').value = existing.scoreA;
+            form.querySelector('input[name="sb"]').value = existing.scoreB;
+        }
+        form.onsubmit = async ev => {
+            ev.preventDefault();
+            const pairA = selA.value;
+            const pairB = selB.value;
+            const scoreA = parseInt(form.querySelector('input[name="sa"]').value)||0;
+            const scoreB = parseInt(form.querySelector('input[name="sb"]').value)||0;
+            const data = { pairA, pairB, scoreA, scoreB, stage:'SF', match:dataMatch, ts:Date.now() };
+            if (existing) {
+                await updateDoc(doc(db,'matches', existing.id), data);
+            } else {
+                await addDoc(collection(db,'matches'), data);
+            }
+            form.reset();
+        };
+        return form;
+    };
+
+    eliminationBracket.appendChild(createSFForm('Semifinal 1', top4[0].id, top4[3].id, 'SF1', sf1));
+    eliminationBracket.appendChild(createSFForm('Semifinal 2', top4[1].id, top4[2].id, 'SF2', sf2));
+
+    const createFinalForm = (existing) => {
+        if (!sf1 || !sf2) {
+            const div = document.createElement('div');
+            div.textContent = 'Esperando semifinales.';
+            return div;
+        }
+        const winners = [];
+        [sf1, sf2].forEach(sf => {
+            if (sf.scoreA > sf.scoreB) winners.push(sf.pairA); else if (sf.scoreB > sf.scoreA) winners.push(sf.pairB);
+        });
+        if (winners.length < 2) {
+            const div = document.createElement('div');
+            div.textContent = 'Esperando semifinales.';
+            return div;
+        }
+        const form = document.createElement('form');
+        form.className = 'grid grid-cols-2 gap-2 items-center mt-4';
+        form.dataset.stage = 'F';
+        form.innerHTML = `
+            <span class="col-span-2 font-semibold">Final</span>
+            <select class="border p-2 rounded" name="a"></select>
+            <input class="border p-2 rounded" name="sa" type="number" min="0" />
+            <span class="col-span-2 text-center">vs</span>
+            <select class="border p-2 rounded" name="b"></select>
+            <input class="border p-2 rounded" name="sb" type="number" min="0" />
+            <button type="submit" class="bg-green-600 text-white rounded p-2 col-span-2">Guardar</button>`;
+        const selA = form.querySelector('select[name="a"]');
+        const selB = form.querySelector('select[name="b"]');
+        winners.forEach((id,idx)=>{
+            const opt = document.createElement('option');
+            opt.value = id;
+            opt.textContent = map[id];
+            if(idx===0) selA.appendChild(opt); else selB.appendChild(opt);
+        });
+        if (existing) {
+            selA.value = existing.pairA;
+            selB.value = existing.pairB;
+            form.querySelector('input[name="sa"]').value = existing.scoreA;
+            form.querySelector('input[name="sb"]').value = existing.scoreB;
+        }
+        form.onsubmit = async ev => {
+            ev.preventDefault();
+            const pairA = selA.value;
+            const pairB = selB.value;
+            const scoreA = parseInt(form.querySelector('input[name="sa"]').value)||0;
+            const scoreB = parseInt(form.querySelector('input[name="sb"]').value)||0;
+            const data = { pairA, pairB, scoreA, scoreB, stage:'F', ts:Date.now() };
+            if (existing) {
+                await updateDoc(doc(db,'matches', existing.id), data);
+            } else {
+                await addDoc(collection(db,'matches'), data);
+            }
+            form.reset();
+        };
+        return form;
+    };
+
+    eliminationBracket.appendChild(createFinalForm(fMatch));
+}
+
 async function loadData() {
     const pairSnap = await getDocs(collection(db, 'pairs'));
     const pairs = pairSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     const matchSnap = await getDocs(collection(db, 'matches'));
-    const matches = matchSnap.docs.map(d => d.data());
+    const matches = matchSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    currentPairs = pairs;
+    currentMatches = matches;
     renderPairs(pairs);
-    renderStats(computeStats(pairs, matches));
+    renderStats(computeStats(pairs, matches.filter(m => (m.stage || 'RR') === 'RR')));
+    renderHistory(pairs, matches);
+    renderElimination(pairs, matches);
 }
 
 onSnapshot(collection(db, 'pairs'), loadData);
