@@ -5,9 +5,37 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Torneo de Frontenis ISSEA</title>
     <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
 </head>
 <body class="bg-gray-50 p-4 max-w-2xl mx-auto">
     <h1 class="text-2xl font-bold text-center mb-6">Administrador Torneo Frontenis ISSEA</h1>
+
+    <section id="infoSection" class="mb-10">
+        <h2 class="text-xl font-semibold mb-2">Información del Torneo</h2>
+        <p class="mb-2">El torneo se llevará a cabo en el <strong>Deportivo IV Centenario</strong> de Aguascalientes.</p>
+        <p class="mb-2">Las jornadas serán los <strong>miércoles</strong> del <strong>9/09/2025</strong> al <strong>30/09/2025</strong>.</p>
+        <p class="mb-2">Habrá dos categorías: <strong>Primera</strong> y <strong>Segunda</strong>. Cada jugador solo puede inscribirse en una categoría.</p>
+        <p>Las instalaciones cuentan con <strong>2 canchas de Frontenis</strong>.</p>
+    </section>
+
+    <section id="playerSection" class="mb-10">
+        <h2 class="text-xl font-semibold mb-2">Cédula de Jugador</h2>
+        <form id="playerForm" class="grid grid-cols-1 gap-2">
+            <input id="playerName" placeholder="Nombre" class="border p-2 rounded" required />
+            <select id="playerCategory" class="border p-2 rounded" required>
+                <option value="">Categoría</option>
+                <option value="Primera">Primera</option>
+                <option value="Segunda">Segunda</option>
+            </select>
+            <input id="playerPhone" placeholder="Teléfono (XXX) XXX XXXX" pattern="\(\d{3}\) \d{3} \d{4}" class="border p-2 rounded" required />
+            <input id="playerAdscripcion" placeholder="Adscripción" class="border p-2 rounded" />
+            <input id="playerTurno" placeholder="Turno" class="border p-2 rounded" />
+            <input id="playerBase" placeholder="Tipo de base" class="border p-2 rounded" />
+            <input id="playerTalla" placeholder="Talla de uniforme" class="border p-2 rounded" />
+            <button type="submit" class="bg-blue-600 text-white rounded p-2">Registrar</button>
+        </form>
+        <ul id="playerList" class="mt-4 space-y-1 text-sm"></ul>
+    </section>
 
     <section id="pairSection" class="mb-10">
         <h2 class="text-xl font-semibold mb-2">Agregar Pareja</h2>
@@ -88,11 +116,36 @@ const matchForm = document.getElementById('matchForm');
 const statsBody = document.getElementById('statsBody');
 const historyList = document.getElementById('historyList');
 const eliminationBracket = document.getElementById('eliminationBracket');
+const playerForm = document.getElementById('playerForm');
+const playerList = document.getElementById('playerList');
 
 let currentPairs = [];
 let currentMatches = [];
+let currentPlayers = [];
 let editingPairId = null;
 let editingMatchId = null;
+let editingPlayerId = null;
+
+playerForm.onsubmit = async e => {
+    e.preventDefault();
+    const data = {
+        name: document.getElementById('playerName').value.trim(),
+        category: document.getElementById('playerCategory').value,
+        phone: document.getElementById('playerPhone').value.trim(),
+        adscripcion: document.getElementById('playerAdscripcion').value.trim(),
+        turno: document.getElementById('playerTurno').value.trim(),
+        base: document.getElementById('playerBase').value.trim(),
+        talla: document.getElementById('playerTalla').value.trim()
+    };
+    if (!data.name || !data.category) return;
+    if (editingPlayerId) {
+        await updateDoc(doc(db, 'players', editingPlayerId), data);
+        editingPlayerId = null;
+    } else {
+        await addDoc(collection(db, 'players'), data);
+    }
+    playerForm.reset();
+};
 
 pairForm.onsubmit = async e => {
     e.preventDefault();
@@ -131,7 +184,7 @@ function renderPairs(pairs) {
     pairBSelect.innerHTML = '<option value="">Pareja B</option>';
     pairs.forEach(p => {
         const li = document.createElement('li');
-        li.innerHTML = `${p.zaguero} / ${p.delantero} <button data-edit="${p.id}" class="text-blue-600">Editar</button> <button data-del="${p.id}" class="text-red-600">Borrar</button>`;
+        li.innerHTML = `${p.zaguero} / ${p.delantero} <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${p.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
         pairList.appendChild(li);
 
         const optA = document.createElement('option');
@@ -140,6 +193,15 @@ function renderPairs(pairs) {
         pairASelect.appendChild(optA);
         const optB = optA.cloneNode(true);
         pairBSelect.appendChild(optB);
+    });
+}
+
+function renderPlayers(players) {
+    playerList.innerHTML = '';
+    players.forEach(p => {
+        const li = document.createElement('li');
+        li.innerHTML = `${p.name} (${p.category}) <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${p.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
+        playerList.appendChild(li);
     });
 }
 
@@ -156,6 +218,28 @@ pairList.onclick = async e => {
         const id = e.target.dataset.del;
         if (confirm('Eliminar pareja?')) {
             await deleteDoc(doc(db, 'pairs', id));
+        }
+    }
+};
+
+playerList.onclick = async e => {
+    if (e.target.closest('button')?.dataset.edit) {
+        const id = e.target.closest('button').dataset.edit;
+        const player = currentPlayers.find(p => p.id === id);
+        if (player) {
+            document.getElementById('playerName').value = player.name;
+            document.getElementById('playerCategory').value = player.category;
+            document.getElementById('playerPhone').value = player.phone;
+            document.getElementById('playerAdscripcion').value = player.adscripcion;
+            document.getElementById('playerTurno').value = player.turno;
+            document.getElementById('playerBase').value = player.base;
+            document.getElementById('playerTalla').value = player.talla;
+            editingPlayerId = id;
+        }
+    } else if (e.target.closest('button')?.dataset.del) {
+        const id = e.target.closest('button').dataset.del;
+        if (confirm('Eliminar jugador?')) {
+            await deleteDoc(doc(db, 'players', id));
         }
     }
 };
@@ -192,7 +276,7 @@ function renderHistory(pairs, matches) {
     matches.forEach(m => {
         const stage = m.stage || 'RR';
         const li = document.createElement('li');
-        li.innerHTML = `${stage}: ${map[m.pairA] || '?'} ${m.scoreA}-${m.scoreB} ${map[m.pairB] || '?'} <button data-edit="${m.id}" class="text-blue-600">Editar</button> <button data-del="${m.id}" class="text-red-600">Borrar</button>`;
+        li.innerHTML = `${stage}: ${map[m.pairA] || '?'} ${m.scoreA}-${m.scoreB} ${map[m.pairB] || '?'} <button data-edit="${m.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${m.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
         historyList.appendChild(li);
     });
 }
@@ -347,9 +431,13 @@ async function loadData() {
     const pairs = pairSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     const matchSnap = await getDocs(collection(db, 'matches'));
     const matches = matchSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const playerSnap = await getDocs(collection(db, 'players'));
+    const players = playerSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     currentPairs = pairs;
     currentMatches = matches;
+    currentPlayers = players;
     renderPairs(pairs);
+    renderPlayers(players);
     renderStats(computeStats(pairs, matches.filter(m => (m.stage || 'RR') === 'RR')));
     renderHistory(pairs, matches);
     renderElimination(pairs, matches);
@@ -357,6 +445,7 @@ async function loadData() {
 
 onSnapshot(collection(db, 'pairs'), loadData);
 onSnapshot(collection(db, 'matches'), loadData);
+onSnapshot(collection(db, 'players'), loadData);
 loadData();
 </script>
 </body>
