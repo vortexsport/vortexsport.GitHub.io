@@ -159,6 +159,7 @@
                             <th class="px-2 py-1">Pts A</th>
                             <th class="px-2 py-1">Pareja B</th>
                             <th class="px-2 py-1">Pts B</th>
+                            <th class="px-2 py-1">Estado</th>
                             <th class="px-2 py-1"></th>
                         </tr>
                     </thead>
@@ -712,6 +713,7 @@ function renderHistory(pairs, matches) {
     matches.forEach(m => {
         const tr = document.createElement('tr');
         tr.className = 'border-b';
+        const st = m.status || ((m.scoreA || m.scoreB) ? 'Finalizado' : 'Pendiente');
         tr.innerHTML = `
             <td class="px-2 py-1" data-label="Fecha">${m.day || ''}</td>
             <td class="px-2 py-1" data-label="Cancha">${m.court || ''}</td>
@@ -720,6 +722,7 @@ function renderHistory(pairs, matches) {
             <td class="px-2 py-1 text-center" data-label="Pts A">${m.scoreA}</td>
             <td class="px-2 py-1" data-label="Pareja B">${map[m.pairB] || '?'}</td>
             <td class="px-2 py-1 text-center" data-label="Pts B">${m.scoreB}</td>
+            <td class="px-2 py-1" data-label="Estado">${st}</td>
             <td class="px-2 py-1 whitespace-nowrap" data-label="Acciones">
                 <button data-edit="${m.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button>
                 <button data-del="${m.id}" class="text-red-600 ml-2"><i class="ti ti-trash"></i></button>
