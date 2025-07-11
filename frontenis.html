@@ -58,6 +58,10 @@
         </div>
         <details class="mt-4">
             <summary class="font-semibold cursor-pointer">Listado de Jugadores</summary>
+            <div class="flex items-center mt-2">
+                <input id="playerSearch" type="text" placeholder="Buscar..." class="border p-2 rounded w-full" />
+                <button id="clearPlayerSearch" type="button" class="ml-2 px-2 py-1 bg-gray-200 rounded">✕</button>
+            </div>
             <ul id="playerList" class="mt-2 space-y-1 text-sm"></ul>
         </details>
     </section>
@@ -80,6 +84,10 @@
         </div>
         <details class="mt-4">
             <summary class="font-semibold cursor-pointer">Listado de Parejas</summary>
+            <div class="flex items-center mt-2">
+                <input id="pairSearch" type="text" placeholder="Buscar..." class="border p-2 rounded w-full" />
+                <button id="clearPairSearch" type="button" class="ml-2 px-2 py-1 bg-gray-200 rounded">✕</button>
+            </div>
             <ul id="pairList" class="mt-2 space-y-1 text-sm"></ul>
         </details>
     </section>
@@ -188,7 +196,11 @@ const playerModal = document.getElementById('playerModal');
 const openPlayerModalBtn = document.getElementById('openPlayerModal');
 const closePlayerModalBtn = document.getElementById('closePlayerModal');
 const playerList = document.getElementById('playerList');
+const playerSearchInput = document.getElementById('playerSearch');
+const clearPlayerSearch = document.getElementById('clearPlayerSearch');
 const categoryTabs = document.querySelectorAll('[data-category]');
+const pairSearchInput = document.getElementById('pairSearch');
+const clearPairSearch = document.getElementById('clearPairSearch');
 
 let currentCategory = 'Primera';
 
@@ -219,6 +231,11 @@ openPlayerModalBtn.onclick = () => {
     playerModal.classList.remove('hidden');
 };
 closePlayerModalBtn.onclick = () => playerModal.classList.add('hidden');
+
+playerSearchInput?.addEventListener('input', () => renderPlayers(currentPlayers));
+clearPlayerSearch?.addEventListener('click', () => { playerSearchInput.value=''; renderPlayers(currentPlayers); });
+pairSearchInput?.addEventListener('input', () => renderPairs(currentPairs.filter(p => p.category === currentCategory)));
+clearPairSearch?.addEventListener('click', () => { pairSearchInput.value=''; renderPairs(currentPairs.filter(p => p.category === currentCategory)); });
 
 courtSelect.onchange = fillTimeOptions;
 daySelect.onchange = fillTimeOptions;
@@ -312,7 +329,6 @@ function refreshUI() {
     renderPairs(pairs);
     renderStats(computeStats(pairs, matches.filter(m => (m.stage || 'RR') === 'RR')));
     renderHistory(pairs, matches);
-    maybeGenerateElimination(pairs, matches);
     maybeGenerateFinals(pairs, matches);
     renderElimination(pairs, matches);
     fillDayOptions();
@@ -389,26 +405,35 @@ function renderPairs(pairs) {
     pairList.innerHTML = '';
     pairASelect.innerHTML = '<option value="">Pareja A</option>';
     pairBSelect.innerHTML = '<option value="">Pareja B</option>';
+    const query = (document.getElementById('pairSearch')?.value || '').toLowerCase();
     pairs.forEach(p => {
-        const li = document.createElement('li');
-        li.innerHTML = `${p.zaguero} / ${p.delantero} <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${p.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
-        pairList.appendChild(li);
-
         const optA = document.createElement('option');
         optA.value = p.id;
         optA.textContent = `${p.zaguero} / ${p.delantero}`;
         pairASelect.appendChild(optA);
-        const optB = optA.cloneNode(true);
-        pairBSelect.appendChild(optB);
+        pairBSelect.appendChild(optA.cloneNode(true));
+
+        const zag = currentPlayers.find(pl => pl.name === p.zaguero) || {};
+        const del = currentPlayers.find(pl => pl.name === p.delantero) || {};
+        const text = `${p.zaguero} ${p.delantero} ${zag.adscripcion || ''} ${zag.turno || ''} ${del.adscripcion || ''} ${del.turno || ''}`.toLowerCase();
+        if (!query || text.includes(query)) {
+            const li = document.createElement('li');
+            li.innerHTML = `${p.zaguero} / ${p.delantero} <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${p.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
+            pairList.appendChild(li);
+        }
     });
 }
 
 function renderPlayers(players) {
+    const query = (document.getElementById('playerSearch')?.value || '').toLowerCase();
     playerList.innerHTML = '';
     players.forEach(p => {
-        const li = document.createElement('li');
-        li.innerHTML = `${p.name} (${p.category}) <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${p.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
-        playerList.appendChild(li);
+        const text = `${p.name} ${p.adscripcion || ''} ${p.turno || ''}`.toLowerCase();
+        if (!query || text.includes(query)) {
+            const li = document.createElement('li');
+            li.innerHTML = `${p.name} (${p.category}) <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${p.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
+            playerList.appendChild(li);
+        }
     });
 }
 
@@ -469,11 +494,13 @@ function computeStats(pairs, matches) {
     return Object.values(stats);
 }
 
-async function maybeGenerateElimination(pairs, matches) {
+async function maybeGenerateFinals(pairs, matches) {
     const rrMatches = matches.filter(m => (m.stage || 'RR') === 'RR');
-    const sfMatches = matches.filter(m => m.stage === 'SF');
+    const finalExists = matches.some(m => m.stage === 'F');
+    const thirdExists = matches.some(m => m.stage === '3P');
     const expected = pairs.length * (pairs.length - 1) / 2;
-    if (sfMatches.length || rrMatches.length < expected || pairs.length < 4) return;
+    if (finalExists && thirdExists) return;
+    if (rrMatches.length < expected || pairs.length < 4) return;
     const stats = computeStats(pairs, rrMatches);
     stats.sort((a,b) => b.jg - a.jg || (b.pf - b.pc) - (a.pf - a.pc));
     const top4 = stats.slice(0,4);
@@ -484,39 +511,11 @@ async function maybeGenerateElimination(pairs, matches) {
     last.setDate(last.getDate()+7);
     const day = fmt(last);
     const ts = Date.now();
-    const games = [
-        {pairA:top4[0].id, pairB:top4[3].id, day, court:courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'SF', match:'SF1', category:currentCategory, ts},
-        {pairA:top4[1].id, pairB:top4[2].id, day, court:courts[1]||courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'SF', match:'SF2', category:currentCategory, ts}
-    ];
-    for (const g of games) {
-        await addDoc(collection(db,'matches'), g);
-    }
-}
-
-async function maybeGenerateFinals(pairs, matches) {
-    const sf1 = matches.find(m => m.stage === 'SF' && m.match === 'SF1');
-    const sf2 = matches.find(m => m.stage === 'SF' && m.match === 'SF2');
-    if (!sf1 || !sf2) return;
-    const finalExists = matches.some(m => m.stage === 'F');
-    const thirdExists = matches.some(m => m.stage === '3P');
-    if (finalExists && thirdExists) return;
-    if (sf1.scoreA === sf1.scoreB && sf1.scoreA === 0) return;
-    if (sf2.scoreA === sf2.scoreB && sf2.scoreA === 0) return;
-    const pad = n => n.toString().padStart(2,'0');
-    const fmt = d => `${d.getFullYear()}-${pad(d.getMonth()+1)}-${pad(d.getDate())}`;
-    const sfDay = new Date(sf1.day);
-    sfDay.setDate(sfDay.getDate()+7);
-    const day = fmt(sfDay);
-    const ts = Date.now();
-    const win1 = sf1.scoreA > sf1.scoreB ? sf1.pairA : sf1.pairB;
-    const win2 = sf2.scoreA > sf2.scoreB ? sf2.pairA : sf2.pairB;
-    const lose1 = sf1.scoreA > sf1.scoreB ? sf1.pairB : sf1.pairA;
-    const lose2 = sf2.scoreA > sf2.scoreB ? sf2.pairB : sf2.pairA;
     if (!finalExists) {
-        await addDoc(collection(db,'matches'), {pairA:win1, pairB:win2, day, court:courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'F', match:'F', category:currentCategory, ts});
+        await addDoc(collection(db,'matches'), {pairA:top4[0].id, pairB:top4[1].id, day, court:courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'F', match:'F', category:currentCategory, ts});
     }
     if (!thirdExists) {
-        await addDoc(collection(db,'matches'), {pairA:lose1, pairB:lose2, day, court:courts[1]||courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'3P', match:'3P', category:currentCategory, ts});
+        await addDoc(collection(db,'matches'), {pairA:top4[2].id, pairB:top4[3].id, day, court:courts[1]||courts[0], time:timeSlots[0], scoreA:0, scoreB:0, stage:'3P', match:'3P', category:currentCategory, ts});
     }
 }
 
@@ -534,11 +533,25 @@ function renderStats(stats) {
 function renderHistory(pairs, matches) {
     const map = Object.fromEntries(pairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
     historyList.innerHTML = '';
-    matches.sort((a,b) => a.ts - b.ts);
+    matches.sort((a,b) => {
+        if (a.day !== b.day) return (a.day||'').localeCompare(b.day||'');
+        if (a.court !== b.court) return (a.court||0) - (b.court||0);
+        return (a.time||'').localeCompare(b.time||'');
+    });
+    let current = '';
     matches.forEach(m => {
+        const group = `${m.day || '?'} C${m.court || '?'} ${m.time ? formatTime(m.time) : ''}`;
+        if (group !== current) {
+            const header = document.createElement('li');
+            header.className = 'font-semibold mt-2';
+            header.textContent = group;
+            historyList.appendChild(header);
+            current = group;
+        }
         const stage = m.stage || 'RR';
         const li = document.createElement('li');
-        li.innerHTML = `${stage}: ${map[m.pairA] || '?'} ${m.scoreA}-${m.scoreB} ${map[m.pairB] || '?'} (${m.day || '?'} C${m.court || '?'} ${m.time ? formatTime(m.time) : ''}) <button data-edit="${m.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${m.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
+        li.className = 'ml-4';
+        li.innerHTML = `${stage}: ${map[m.pairA] || '?'} ${m.scoreA}-${m.scoreB} ${map[m.pairB] || '?'} <button data-edit="${m.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${m.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
         historyList.appendChild(li);
     });
 }
@@ -574,8 +587,8 @@ function renderElimination(pairs, matches) {
     stats.sort((a,b) => b.jg - a.jg || (b.pf - b.pc) - (a.pf - a.pc));
     const top4 = stats.slice(0,4);
     const map = Object.fromEntries(pairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
-    const sfMatches = matches.filter(m => m.stage === 'SF');
-    const fMatch = matches.find(m => m.stage === 'F');
+    const finalMatch = matches.find(m => m.stage === 'F');
+    const thirdMatch = matches.find(m => m.stage === '3P');
 
     eliminationBracket.innerHTML = '';
     if (top4.length < 4) {
@@ -583,14 +596,10 @@ function renderElimination(pairs, matches) {
         return;
     }
 
-    const sf1 = sfMatches.find(m => m.match === 'SF1');
-    const sf2 = sfMatches.find(m => m.match === 'SF2');
-
-    const createSFForm = (label, aId, bId, dataMatch, existing) => {
+    const createForm = (label, aId, bId, stage, existing) => {
         const form = document.createElement('form');
-        form.className = 'grid grid-cols-2 gap-2 items-center';
-        form.dataset.stage = 'SF';
-        form.dataset.match = dataMatch;
+        form.className = 'grid grid-cols-2 gap-2 items-center mb-4';
+        form.dataset.stage = stage;
         form.innerHTML = `
             <span class="col-span-2 font-semibold">${label}</span>
             <select class="border p-2 rounded" name="a"></select>
@@ -619,7 +628,7 @@ function renderElimination(pairs, matches) {
             const pairB = selB.value;
             const scoreA = parseInt(form.querySelector('input[name="sa"]').value)||0;
             const scoreB = parseInt(form.querySelector('input[name="sb"]').value)||0;
-            const data = { pairA, pairB, scoreA, scoreB, stage:'SF', match:dataMatch, ts:Date.now() };
+            const data = { pairA, pairB, scoreA, scoreB, stage, ts:Date.now() };
             if (existing) {
                 await updateDoc(doc(db,'matches', existing.id), data);
             } else {
@@ -630,126 +639,8 @@ function renderElimination(pairs, matches) {
         return form;
     };
 
-    eliminationBracket.appendChild(createSFForm('Semifinal 1', top4[0].id, top4[3].id, 'SF1', sf1));
-    eliminationBracket.appendChild(createSFForm('Semifinal 2', top4[1].id, top4[2].id, 'SF2', sf2));
-
-    const createFinalForm = (existing) => {
-        if (!sf1 || !sf2) {
-            const div = document.createElement('div');
-            div.textContent = 'Esperando semifinales.';
-            return div;
-        }
-        const winners = [];
-        [sf1, sf2].forEach(sf => {
-            if (sf.scoreA > sf.scoreB) winners.push(sf.pairA); else if (sf.scoreB > sf.scoreA) winners.push(sf.pairB);
-        });
-        if (winners.length < 2) {
-            const div = document.createElement('div');
-            div.textContent = 'Esperando semifinales.';
-            return div;
-        }
-        const form = document.createElement('form');
-        form.className = 'grid grid-cols-2 gap-2 items-center mt-4';
-        form.dataset.stage = 'F';
-        form.innerHTML = `
-            <span class="col-span-2 font-semibold">Final</span>
-            <select class="border p-2 rounded" name="a"></select>
-            <input class="border p-2 rounded" name="sa" type="number" min="0" />
-            <span class="col-span-2 text-center">vs</span>
-            <select class="border p-2 rounded" name="b"></select>
-            <input class="border p-2 rounded" name="sb" type="number" min="0" />
-            <button type="submit" class="bg-green-600 text-white rounded p-2 col-span-2">Guardar</button>`;
-        const selA = form.querySelector('select[name="a"]');
-        const selB = form.querySelector('select[name="b"]');
-        winners.forEach((id,idx)=>{
-            const opt = document.createElement('option');
-            opt.value = id;
-            opt.textContent = map[id];
-            if(idx===0) selA.appendChild(opt); else selB.appendChild(opt);
-        });
-        if (existing) {
-            selA.value = existing.pairA;
-            selB.value = existing.pairB;
-            form.querySelector('input[name="sa"]').value = existing.scoreA;
-            form.querySelector('input[name="sb"]').value = existing.scoreB;
-        }
-        form.onsubmit = async ev => {
-            ev.preventDefault();
-            const pairA = selA.value;
-            const pairB = selB.value;
-            const scoreA = parseInt(form.querySelector('input[name="sa"]').value)||0;
-            const scoreB = parseInt(form.querySelector('input[name="sb"]').value)||0;
-            const data = { pairA, pairB, scoreA, scoreB, stage:'F', ts:Date.now() };
-            if (existing) {
-                await updateDoc(doc(db,'matches', existing.id), data);
-            } else {
-                await addDoc(collection(db,'matches'), data);
-            }
-            form.reset();
-        };
-        return form;
-    };
-
-    const createThirdForm = (existing) => {
-        if (!sf1 || !sf2) {
-            const div = document.createElement('div');
-            div.textContent = 'Esperando semifinales.';
-            return div;
-        }
-        const losers = [];
-        [sf1, sf2].forEach(sf => {
-            if (sf.scoreA > sf.scoreB) losers.push(sf.pairB); else if (sf.scoreB > sf.scoreA) losers.push(sf.pairA);
-        });
-        if (losers.length < 2) {
-            const div = document.createElement('div');
-            div.textContent = 'Esperando semifinales.';
-            return div;
-        }
-        const form = document.createElement('form');
-        form.className = 'grid grid-cols-2 gap-2 items-center mt-4';
-        form.dataset.stage = '3P';
-        form.innerHTML = `
-            <span class="col-span-2 font-semibold">Tercer Lugar</span>
-            <select class="border p-2 rounded" name="a"></select>
-            <input class="border p-2 rounded" name="sa" type="number" min="0" />
-            <span class="col-span-2 text-center">vs</span>
-            <select class="border p-2 rounded" name="b"></select>
-            <input class="border p-2 rounded" name="sb" type="number" min="0" />
-            <button type="submit" class="bg-green-600 text-white rounded p-2 col-span-2">Guardar</button>`;
-        const selA = form.querySelector('select[name="a"]');
-        const selB = form.querySelector('select[name="b"]');
-        losers.forEach((id,idx)=>{
-            const opt = document.createElement('option');
-            opt.value = id;
-            opt.textContent = map[id];
-            if(idx===0) selA.appendChild(opt); else selB.appendChild(opt);
-        });
-        if (existing) {
-            selA.value = existing.pairA;
-            selB.value = existing.pairB;
-            form.querySelector('input[name="sa"]').value = existing.scoreA;
-            form.querySelector('input[name="sb"]').value = existing.scoreB;
-        }
-        form.onsubmit = async ev => {
-            ev.preventDefault();
-            const pairA = selA.value;
-            const pairB = selB.value;
-            const scoreA = parseInt(form.querySelector('input[name="sa"]').value)||0;
-            const scoreB = parseInt(form.querySelector('input[name="sb"]').value)||0;
-            const data = { pairA, pairB, scoreA, scoreB, stage:'3P', ts:Date.now() };
-            if (existing) {
-                await updateDoc(doc(db,'matches', existing.id), data);
-            } else {
-                await addDoc(collection(db,'matches'), data);
-            }
-            form.reset();
-        };
-        return form;
-    };
-
-    eliminationBracket.appendChild(createFinalForm(fMatch));
-    const thirdMatch = matches.find(m => m.stage === '3P');
-    eliminationBracket.appendChild(createThirdForm(thirdMatch));
+    eliminationBracket.appendChild(createForm('Final', top4[0].id, top4[1].id, 'F', finalMatch));
+    eliminationBracket.appendChild(createForm('Tercer Lugar', top4[2].id, top4[3].id, '3P', thirdMatch));
 }
 
 async function loadData() {
