@@ -671,34 +671,40 @@ async function loadData() {
 }
 
 async function generateRoundRobin() {
-    const pairs = currentPairs.filter(p => p.category === currentCategory);
-    if (pairs.length < 2) { alert('Se requieren al menos dos parejas'); return; }
-    const existing = currentMatches.filter(m => m.category === currentCategory && (m.stage || 'RR') === 'RR');
+    const categories = Array.from(new Set(currentPairs.map(p => p.category)));
+    const existing = currentMatches.filter(m => (m.stage || 'RR') === 'RR');
     if (existing.length && !confirm('Ya existe un rol. ¿Deseas reemplazarlo?')) return;
-    for (const m of existing) { await deleteDoc(doc(db,'matches', m.id)); }
-    let ids = pairs.map(p => p.id);
-    if (ids.length % 2 === 1) ids.push(null);
-    const numRounds = ids.length - 1;
-    const half = ids.length / 2;
-    let arr = ids.slice();
-    let schedule = [];
-    for (let r=0; r<numRounds; r++) {
-        const day = availableDays[r % availableDays.length];
-        let timeIdx = 0, courtIdx = 0;
-        for (let i=0; i<half; i++) {
-            const a = arr[i];
-            const b = arr[arr.length-1-i];
-            if (a && b) {
-                const time = timeSlots[timeIdx];
-                const court = courts[courtIdx];
-                schedule.push({pairA:a, pairB:b, day, court, time, scoreA:0, scoreB:0, stage:'RR', category:currentCategory, ts:Date.now()});
-                courtIdx++;
-                if (courtIdx >= courts.length) { courtIdx = 0; timeIdx++; }
+    for (const m of existing) { await deleteDoc(doc(db, 'matches', m.id)); }
+
+    let unscheduled = [];
+    categories.forEach(cat => {
+        const pairs = currentPairs.filter(p => p.category === cat);
+        if (pairs.length < 2) return;
+        let ids = pairs.map(p => p.id);
+        if (ids.length % 2 === 1) ids.push(null);
+        const numRounds = ids.length - 1;
+        const half = ids.length / 2;
+        let arr = ids.slice();
+        for (let r=0; r<numRounds; r++) {
+            for (let i=0; i<half; i++) {
+                const a = arr[i];
+                const b = arr[arr.length - 1 - i];
+                if (a && b) unscheduled.push({ pairA: a, pairB: b, category: cat });
             }
+            arr.splice(1, 0, arr.pop());
         }
-        arr.splice(1,0,arr.pop());
-    }
-    for (const m of schedule) { await addDoc(collection(db,'matches'), m); }
+    });
+
+    const totalSlotsPerDay = courts.length * timeSlots.length;
+    unscheduled.forEach((m, idx) => {
+        const day = availableDays[Math.floor(idx / totalSlotsPerDay) % availableDays.length];
+        const slot = idx % totalSlotsPerDay;
+        const court = courts[slot % courts.length];
+        const time = timeSlots[Math.floor(slot / courts.length)];
+        Object.assign(m, { day, court, time, scoreA: 0, scoreB: 0, stage: 'RR', ts: Date.now() });
+    });
+
+    for (const m of unscheduled) { await addDoc(collection(db, 'matches'), m); }
     alert('Rol generado');
 }
 
