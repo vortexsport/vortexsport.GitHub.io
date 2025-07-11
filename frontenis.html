@@ -28,12 +28,28 @@
         <input type="file" id="importDBInput" accept=".json" class="hidden" />
     </div>
 
-    <section id="infoSection" class="glass-card p-4 mb-10">
-        <h2 class="text-xl font-semibold mb-2">Información del Torneo</h2>
-        <p class="mb-2">El torneo se llevará a cabo en el <strong>Deportivo IV Centenario</strong> de Aguascalientes.</p>
-        <p class="mb-2">Las jornadas serán los <strong>miércoles</strong> del <strong>9/09/2025</strong> al <strong>30/09/2025</strong>.</p>
-        <p class="mb-2">Habrá dos categorías: <strong>Primera</strong> y <strong>Segunda</strong>. Cada jugador solo puede inscribirse en una categoría.</p>
-        <p>Las instalaciones cuentan con <strong>2 canchas de Frontenis</strong>.</p>
+    <section id="infoSection" class="glass-card p-4 mb-10 space-y-2">
+        <h2 class="text-xl font-semibold mb-4">Información del Torneo</h2>
+        <div class="flex items-start">
+            <i class="ti ti-map-pin text-blue-600 mr-2"></i>
+            <p>La sede oficial será el <strong>Deportivo IV Centenario</strong> en Aguascalientes.</p>
+        </div>
+        <div class="flex items-start">
+            <i class="ti ti-calendar-event text-blue-600 mr-2"></i>
+            <p>Las jornadas se disputarán los <strong>miércoles</strong> del <strong>9 al 30 de septiembre de 2025</strong>.</p>
+        </div>
+        <div class="flex items-start">
+            <i class="ti ti-medal text-blue-600 mr-2"></i>
+            <p>Se competirá en dos categorías: <strong>Primera</strong> y <strong>Segunda</strong>. Cada jugador participará únicamente en su categoría.</p>
+        </div>
+        <div class="flex items-start">
+            <i class="ti ti-building-stadium text-blue-600 mr-2"></i>
+            <p>El complejo cuenta con <strong>dos canchas profesionales</strong> y servicios para jugadores y público.</p>
+        </div>
+        <div class="flex items-start">
+            <i class="ti ti-tournament text-blue-600 mr-2"></i>
+            <p>El torneo iniciará con un formato <em>round robin</em> y concluirá con etapas finales.</p>
+        </div>
     </section>
 
     <section id="playerSection" class="glass-card p-4 mb-10">
@@ -95,10 +111,6 @@
     <section id="matchesSection" class="glass-card p-4 mb-10">
         <h2 class="text-xl font-semibold mb-2">Partidos</h2>
 
-        <h3 class="text-lg font-semibold mb-2">Eliminatorias</h3>
-        <div id="eliminationBracket" class="space-y-2 text-sm mb-4"></div>
-
-        <h3 class="text-lg font-semibold mb-2">Partidos</h3>
         <div class="mb-2 space-x-2">
             <button id="generateSchedule" class="bg-blue-600 text-white rounded p-2">Generar Calendario</button>
             <button id="downloadPdf" class="bg-indigo-600 text-white rounded p-2">Calendario PDF</button>
@@ -137,6 +149,9 @@
             <summary class="font-semibold cursor-pointer">Ver calendario</summary>
             <ul id="historyList" class="space-y-1 text-sm mt-2"></ul>
         </details>
+
+        <h3 class="text-lg font-semibold mb-2 mt-4">Partidos Finales</h3>
+        <div id="eliminationBracket" class="space-y-2 text-sm"></div>
     </section>
 
     <section id="statsSection" class="glass-card p-4 mb-10">
