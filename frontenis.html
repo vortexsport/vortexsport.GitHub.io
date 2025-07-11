@@ -78,7 +78,18 @@
                 <input id="playerSearch" type="text" placeholder="Buscar..." class="border p-2 rounded w-full" />
                 <button id="clearPlayerSearch" type="button" class="ml-2 px-2 py-1 bg-gray-200 rounded">✕</button>
             </div>
-            <ul id="playerList" class="mt-2 space-y-1 text-sm"></ul>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm mt-2">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="px-2 py-1">Nombre</th>
+                            <th class="px-2 py-1">Categoría</th>
+                            <th class="px-2 py-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="playerList"></tbody>
+                </table>
+            </div>
         </details>
     </section>
 
@@ -104,7 +115,19 @@
                 <input id="pairSearch" type="text" placeholder="Buscar..." class="border p-2 rounded w-full" />
                 <button id="clearPairSearch" type="button" class="ml-2 px-2 py-1 bg-gray-200 rounded">✕</button>
             </div>
-            <ul id="pairList" class="mt-2 space-y-1 text-sm"></ul>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm mt-2">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="px-2 py-1">Zaguero</th>
+                            <th class="px-2 py-1">Delantero</th>
+                            <th class="px-2 py-1">Categoría</th>
+                            <th class="px-2 py-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="pairList"></tbody>
+                </table>
+            </div>
         </details>
     </section>
 
@@ -495,9 +518,17 @@ function renderPairs(pairs) {
         const del = currentPlayers.find(pl => pl.name === p.delantero) || {};
         const text = `${p.zaguero} ${p.delantero} ${zag.adscripcion || ''} ${zag.turno || ''} ${del.adscripcion || ''} ${del.turno || ''}`.toLowerCase();
         if (!query || text.includes(query)) {
-            const li = document.createElement('li');
-            li.innerHTML = `${p.zaguero} / ${p.delantero} <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${p.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
-            pairList.appendChild(li);
+            const tr = document.createElement('tr');
+            tr.className = 'border-b';
+            tr.innerHTML = `
+                <td class="px-2 py-1">${p.zaguero}</td>
+                <td class="px-2 py-1">${p.delantero}</td>
+                <td class="px-2 py-1">${p.category || ''}</td>
+                <td class="px-2 py-1 whitespace-nowrap">
+                    <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button>
+                    <button data-del="${p.id}" class="text-red-600 ml-2"><i class="ti ti-trash"></i></button>
+                </td>`;
+            pairList.appendChild(tr);
         }
     });
 }
@@ -508,9 +539,16 @@ function renderPlayers(players) {
     players.forEach(p => {
         const text = `${p.name} ${p.adscripcion || ''} ${p.turno || ''}`.toLowerCase();
         if (!query || text.includes(query)) {
-            const li = document.createElement('li');
-            li.innerHTML = `${p.name} (${p.category}) <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${p.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
-            playerList.appendChild(li);
+            const tr = document.createElement('tr');
+            tr.className = 'border-b';
+            tr.innerHTML = `
+                <td class="px-2 py-1">${p.name}</td>
+                <td class="px-2 py-1">${p.category}</td>
+                <td class="px-2 py-1 whitespace-nowrap">
+                    <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button>
+                    <button data-del="${p.id}" class="text-red-600 ml-2"><i class="ti ti-trash"></i></button>
+                </td>`;
+            playerList.appendChild(tr);
         }
     });
 }
