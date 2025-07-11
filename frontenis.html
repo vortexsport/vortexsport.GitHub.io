@@ -138,12 +138,14 @@
                         </select>
                     </div>
                     <hr>
-                    <div class="grid grid-cols-6 gap-2 items-center">
-                        <select id="pairA" class="border p-2 rounded col-span-2"></select>
+                    <div class="grid grid-cols-2 gap-2 items-center">
+                        <select id="pairA" class="border p-2 rounded w-full"></select>
                         <input id="scoreA" type="number" min="0" class="border p-2 rounded" />
-                        <span class="text-center">vs</span>
+                    </div>
+                    <hr>
+                    <div class="grid grid-cols-2 gap-2 items-center">
+                        <select id="pairB" class="border p-2 rounded w-full"></select>
                         <input id="scoreB" type="number" min="0" class="border p-2 rounded" />
-                        <select id="pairB" class="border p-2 rounded col-span-2"></select>
                     </div>
                     <div class="flex justify-end space-x-2">
                         <button type="button" id="closeMatchModal" class="px-3 py-1 rounded border">Cancelar</button>
@@ -156,7 +158,23 @@
         <h3 class="text-lg font-semibold mb-2 mt-4">Calendario de Partidos</h3>
         <details>
             <summary class="font-semibold cursor-pointer">Ver calendario</summary>
-            <ul id="historyList" class="space-y-1 text-sm mt-2"></ul>
+            <div class="overflow-x-auto">
+                <table class="min-w-full text-sm mt-2" id="historyTable">
+                    <thead>
+                        <tr class="border-b">
+                            <th class="px-2 py-1">Fecha</th>
+                            <th class="px-2 py-1">Cancha</th>
+                            <th class="px-2 py-1">Horario</th>
+                            <th class="px-2 py-1">Pareja A</th>
+                            <th class="px-2 py-1">Pts A</th>
+                            <th class="px-2 py-1">Pareja B</th>
+                            <th class="px-2 py-1">Pts B</th>
+                            <th class="px-2 py-1"></th>
+                        </tr>
+                    </thead>
+                    <tbody id="historyBody"></tbody>
+                </table>
+            </div>
         </details>
 
         <h3 class="text-lg font-semibold mb-2 mt-4">Partidos Finales</h3>
@@ -226,7 +244,7 @@ const categorySelect = document.getElementById('categorySelect');
 const generateScheduleBtn = document.getElementById('generateSchedule');
 const downloadPdfBtn = document.getElementById('downloadPdf');
 const statsBody = document.getElementById('statsBody');
-const historyList = document.getElementById('historyList');
+const historyBody = document.getElementById('historyBody');
 const eliminationBracket = document.getElementById('eliminationBracket');
 const playerForm = document.getElementById('playerForm');
 const playerModal = document.getElementById('playerModal');
@@ -595,31 +613,32 @@ function renderStats(stats) {
 
 function renderHistory(pairs, matches) {
     const map = Object.fromEntries(pairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
-    historyList.innerHTML = '';
+    historyBody.innerHTML = '';
     matches.sort((a,b) => {
         if (a.day !== b.day) return (a.day||'').localeCompare(b.day||'');
         if (a.court !== b.court) return (a.court||0) - (b.court||0);
         return (a.time||'').localeCompare(b.time||'');
     });
-    let current = '';
     matches.forEach(m => {
-        const group = `${m.day || '?'} C${m.court || '?'} ${m.time ? formatTime(m.time) : ''}`;
-        if (group !== current) {
-            const header = document.createElement('li');
-            header.className = 'font-semibold mt-2';
-            header.textContent = group;
-            historyList.appendChild(header);
-            current = group;
-        }
-        const stage = m.stage || 'RR';
-        const li = document.createElement('li');
-        li.className = 'ml-4';
-        li.innerHTML = `${stage}: ${map[m.pairA] || '?'} ${m.scoreA}-${m.scoreB} ${map[m.pairB] || '?'} (${m.status || 'Pendiente'}) <button data-edit="${m.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button> <button data-del="${m.id}" class="text-red-600"><i class="ti ti-trash"></i></button>`;
-        historyList.appendChild(li);
+        const tr = document.createElement('tr');
+        tr.className = 'border-b';
+        tr.innerHTML = `
+            <td class="px-2 py-1">${m.day || ''}</td>
+            <td class="px-2 py-1">${m.court || ''}</td>
+            <td class="px-2 py-1">${m.time ? formatTime(m.time) : ''}</td>
+            <td class="px-2 py-1">${map[m.pairA] || '?'}</td>
+            <td class="px-2 py-1 text-center">${m.scoreA}</td>
+            <td class="px-2 py-1">${map[m.pairB] || '?'}</td>
+            <td class="px-2 py-1 text-center">${m.scoreB}</td>
+            <td class="px-2 py-1 whitespace-nowrap">
+                <button data-edit="${m.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button>
+                <button data-del="${m.id}" class="text-red-600 ml-2"><i class="ti ti-trash"></i></button>
+            </td>`;
+        historyBody.appendChild(tr);
     });
 }
 
-historyList.onclick = async e => {
+historyBody.onclick = async e => {
     if (e.target.closest('button')?.dataset.edit) {
         const id = e.target.closest('button').dataset.edit;
         const match = currentMatches.find(m => m.id === id);
@@ -631,6 +650,7 @@ historyList.onclick = async e => {
             categorySelect.value = match.category || currentCategory;
             daySelect.value = match.day || '';
             courtSelect.value = match.court || '';
+            editingMatchId = id;
             fillTimeOptions();
             timeSelect.value = match.time || '';
             if (match.status === 'No Jugado') {
@@ -641,7 +661,6 @@ historyList.onclick = async e => {
                 statusSelect.value = match.status || 'Pendiente';
             }
             matchForm.dataset.stage = match.stage || 'RR';
-            editingMatchId = id;
             matchModal.classList.remove('hidden');
         }
     } else if (e.target.closest('button')?.dataset.del) {
