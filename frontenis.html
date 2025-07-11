@@ -673,6 +673,7 @@ historyBody.onclick = async e => {
 
 function renderElimination(pairs, matches) {
     const rrMatches = matches.filter(m => (m.stage || 'RR') === 'RR');
+    const rrDone = rrMatches.every(m => m.status !== 'Pendiente');
     const stats = computeStats(pairs, rrMatches);
     stats.sort((a,b) => b.jg - a.jg || (b.pf - b.pc) - (a.pf - a.pc));
     const top4 = stats.slice(0,4);
@@ -690,20 +691,23 @@ function renderElimination(pairs, matches) {
         const form = document.createElement('form');
         form.className = 'space-y-2';
         form.dataset.stage = stage;
+        const nameA = rrDone ? map[aId] : 'Pendiente de Resultados';
+        const nameB = rrDone ? map[bId] : 'Pendiente de Resultados';
+        const disabled = rrDone ? '' : 'disabled';
         form.innerHTML = `
             <div class="grid grid-cols-2 gap-2 items-center">
-                <span>${map[aId]}</span>
-                <input class="border p-2 rounded" name="sa" type="number" min="0" />
+                <span>${nameA}</span>
+                <input class="border p-2 rounded" name="sa" type="number" min="0" ${disabled} />
             </div>
             <div class="text-center font-semibold">vs</div>
             <div class="grid grid-cols-2 gap-2 items-center">
-                <span>${map[bId]}</span>
-                <input class="border p-2 rounded" name="sb" type="number" min="0" />
+                <span>${nameB}</span>
+                <input class="border p-2 rounded" name="sb" type="number" min="0" ${disabled} />
             </div>
             <input type="hidden" name="a" value="${aId}">
             <input type="hidden" name="b" value="${bId}">
             <div class="flex justify-end">
-                <button type="submit" class="bg-green-600 text-white rounded p-2">Guardar</button>
+                <button type="submit" class="bg-green-600 text-white rounded p-2" ${disabled}>Guardar</button>
             </div>`;
         const inputA = form.querySelector('input[name="sa"]');
         const inputB = form.querySelector('input[name="sb"]');
