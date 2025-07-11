@@ -831,27 +831,31 @@ function downloadSchedulePdf() {
     const win = window.open('', '_blank');
     if (!win) return;
     let html = `<html><head><title>Calendario</title><style>
-        body{font-family:sans-serif;}table{border-collapse:collapse;width:100%;margin-bottom:20px;}
-        th,td{border:1px solid #000;padding:4px;}th{background:#eee;}h1,h2{margin-top:1.5rem;}
+        @page { size: landscape; margin: 1cm; }
+        body{font-family:sans-serif;}table{border-collapse:collapse;width:100%;}
+        th,td{border:1px solid #000;padding:4px;}th{background:#eee;}
+        .page{page-break-before:always;padding-bottom:20px;}
+        h1,h2{margin-top:0;margin-bottom:0.5rem;}
     </style></head><body>`;
-    cats.forEach(cat => {
-        const matches = currentMatches.filter(m => m.category === cat).sort((a,b) => {
+    cats.forEach((cat, ci) => {
+        const matchesCat = currentMatches.filter(m => m.category === cat).sort((a,b) => {
             if (a.day !== b.day) return (a.day||'').localeCompare(b.day||'');
             if (a.court !== b.court) return (a.court||0) - (b.court||0);
             return (a.time||'').localeCompare(b.time||'');
         });
-        if (!matches.length) return;
-        html += `<h1>Categoría ${cat}</h1>`;
-        let current = '';
-        matches.forEach(m => {
-            if (m.day !== current) {
-                if (current) html += '</tbody></table>';
-                html += `<h2>${m.day}</h2><table><thead><tr><th>Cancha</th><th>Horario</th><th>Pareja A</th><th>Pareja B</th><th>Marcador</th></tr></thead><tbody>`;
-                current = m.day;
-            }
-            html += `<tr><td>${m.court || ''}</td><td>${formatTime(m.time || '')}</td><td>${map[m.pairA] || ''}</td><td>${map[m.pairB] || ''}</td><td style="height:20px"></td></tr>`;
+        const days = Array.from(new Set(matchesCat.map(m => m.day))).sort();
+        days.forEach((day, di) => {
+            const matches = matchesCat.filter(m => m.day === day);
+            if (!matches.length) return;
+            const pageClass = (ci || di) ? 'page' : '';
+            html += `<div class="${pageClass}">`;
+            html += `<h1>Categoría ${cat}</h1><h2>${day}</h2>`;
+            html += `<table><thead><tr><th>Cancha</th><th>Horario</th><th>Pareja A</th><th>Pts. A</th><th>Pareja B</th><th>Pts. B</th></tr></thead><tbody>`;
+            matches.forEach(m => {
+                html += `<tr><td>${m.court || ''}</td><td>${formatTime(m.time || '')}</td><td>${map[m.pairA] || ''}</td><td>${m.scoreA}</td><td>${map[m.pairB] || ''}</td><td>${m.scoreB}</td></tr>`;
+            });
+            html += '</tbody></table></div>';
         });
-        if (current) html += '</tbody></table>';
     });
     html += '</body></html>';
     win.document.write(html);
