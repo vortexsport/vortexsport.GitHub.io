@@ -440,6 +440,18 @@ function formatTime(t) {
     return `${hour}:${m.toString().padStart(2,'0')} ${suf}`;
 }
 
+function getShortName(name) {
+    return name.split(/\s+/)[0];
+}
+
+function pairLabel(pair) {
+    const zag = currentPlayers.find(pl => pl.name === pair.zaguero) || {};
+    const del = currentPlayers.find(pl => pl.name === pair.delantero) || {};
+    const sz = zag.shortName || getShortName(pair.zaguero);
+    const sd = del.shortName || getShortName(pair.delantero);
+    return `${sz} | ${sd}`;
+}
+
 function fillTimeOptions() {
     timeSelect.innerHTML = '<option value="">Horario</option>';
     const selectedCourt = courtSelect.value;
@@ -481,8 +493,10 @@ playerForm.onsubmit = async e => {
     const phoneDigits = document.getElementById('playerPhone').value.replace(/\D/g, '');
     const formattedPhone = phoneDigits.length === 10 ?
         `(${phoneDigits.slice(0,3)}) ${phoneDigits.slice(3,6)} ${phoneDigits.slice(6)}` : phoneDigits;
+    const fullName = document.getElementById('playerName').value.trim();
     const data = {
-        name: document.getElementById('playerName').value.trim(),
+        name: fullName,
+        shortName: getShortName(fullName),
         category: currentCategory,
         phone: formattedPhone,
         adscripcion: document.getElementById('playerAdscripcion').value.trim(),
@@ -557,7 +571,7 @@ function renderPairs(pairs) {
     pairs.forEach(p => {
         const optA = document.createElement('option');
         optA.value = p.id;
-        optA.textContent = `${p.zaguero} / ${p.delantero}`;
+        optA.textContent = pairLabel(p);
         pairASelect.appendChild(optA);
         pairBSelect.appendChild(optA.cloneNode(true));
 
@@ -643,7 +657,7 @@ playerList.onclick = async e => {
 
 function computeStats(pairs, matches) {
     const stats = {};
-    pairs.forEach(p => stats[p.id] = { id: p.id, name: `${p.zaguero} / ${p.delantero}`, jj:0, jg:0, jp:0, pf:0, pc:0 });
+    pairs.forEach(p => stats[p.id] = { id: p.id, name: pairLabel(p), jj:0, jg:0, jp:0, pf:0, pc:0 });
     matches.forEach(m => {
         const a = stats[m.pairA];
         const b = stats[m.pairB];
@@ -703,7 +717,7 @@ function renderStats(stats) {
 }
 
 function renderHistory(pairs, matches) {
-    const map = Object.fromEntries(pairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
+    const map = Object.fromEntries(pairs.map(p => [p.id, pairLabel(p)]));
     historyBody.innerHTML = '';
     matches.sort((a,b) => {
         if (a.day !== b.day) return (a.day||'').localeCompare(b.day||'');
@@ -770,7 +784,7 @@ function renderElimination(pairs, matches) {
     const stats = computeStats(pairs, rrMatches);
     stats.sort((a,b) => b.jg - a.jg || (b.pf - b.pc) - (a.pf - a.pc));
     const top4 = stats.slice(0,4);
-    const map = Object.fromEntries(pairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
+    const map = Object.fromEntries(pairs.map(p => [p.id, pairLabel(p)]));
     const finalMatch = matches.find(m => m.stage === 'F');
     const thirdMatch = matches.find(m => m.stage === '3P');
 
@@ -847,7 +861,7 @@ function renderElimination(pairs, matches) {
 
 function renderFinalResults(pairs, matches) {
     const container = document.getElementById('finalResults');
-    const map = Object.fromEntries(pairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
+    const map = Object.fromEntries(pairs.map(p => [p.id, pairLabel(p)]));
     const finalMatch = matches.find(m => m.stage === 'F');
     const thirdMatch = matches.find(m => m.stage === '3P');
     const rrDone = matches.filter(m => (m.stage || 'RR') === 'RR').every(m => m.status === 'Finalizado' || m.status === 'No Jugado');
@@ -872,7 +886,11 @@ async function loadData() {
     const matchSnap = await getDocs(collection(db, 'matches'));
     const matches = matchSnap.docs.map(d => ({ id: d.id, ...d.data() }));
     const playerSnap = await getDocs(collection(db, 'players'));
-    const players = playerSnap.docs.map(d => ({ id: d.id, ...d.data() }));
+    const players = playerSnap.docs.map(d => {
+        const obj = { id: d.id, ...d.data() };
+        obj.shortName = obj.shortName || getShortName(obj.name || '');
+        return obj;
+    });
     currentPairs = pairs;
     currentMatches = matches;
     currentPlayers = players;
@@ -919,7 +937,7 @@ async function generateRoundRobin() {
 }
 
 function downloadSchedulePdf() {
-    const map = Object.fromEntries(currentPairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
+    const map = Object.fromEntries(currentPairs.map(p => [p.id, pairLabel(p)]));
     const cats = Array.from(new Set(currentMatches.map(m => m.category)));
     const win = window.open('', '_blank');
     if (!win) return;
@@ -981,6 +999,7 @@ async function importDatabase(file) {
     const data = JSON.parse(text);
     if (data.players) {
         for (const p of data.players) {
+            if (!p.shortName && p.name) p.shortName = getShortName(p.name);
             await setDoc(doc(db, 'players', p.id), p);
         }
     }
