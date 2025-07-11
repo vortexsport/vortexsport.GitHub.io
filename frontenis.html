@@ -64,23 +64,6 @@
     <section id="playerSection" class="glass-card p-4 mb-10">
         <h2 class="text-xl font-semibold mb-2">Jugadores</h2>
         <button id="openPlayerModal" class="bg-blue-600 text-white rounded p-2 mb-2">Añadir Jugador</button>
-        <div id="playerModal" class="modal-overlay hidden">
-            <div class="modal-window bg-white rounded-lg shadow-2xl p-4 w-80">
-                <h3 class="text-lg font-semibold mb-2">Registro de Jugador</h3>
-                <form id="playerForm" class="grid grid-cols-1 gap-2">
-                    <input id="playerName" placeholder="Nombre" class="border p-2 rounded" required />
-                    <input id="playerPhone" placeholder="Teléfono a 10 dígitos" pattern="\d{10}" class="border p-2 rounded" required />
-                    <input id="playerAdscripcion" placeholder="Adscripción" class="border p-2 rounded" />
-                    <input id="playerTurno" placeholder="Turno" class="border p-2 rounded" />
-                    <input id="playerBase" placeholder="Tipo de base" class="border p-2 rounded" />
-                    <input id="playerTalla" placeholder="Talla de uniforme" class="border p-2 rounded" />
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" id="closePlayerModal" class="px-3 py-1 rounded border">Cancelar</button>
-                        <button type="submit" class="bg-blue-600 text-white rounded px-3 py-1">Registrar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
         <details class="mt-4">
             <summary class="font-semibold cursor-pointer">Listado de Jugadores</summary>
             <div class="flex items-center mt-2">
@@ -105,19 +88,6 @@
     <section id="pairSection" class="glass-card p-4 mb-10">
         <h2 class="text-xl font-semibold mb-2">Parejas</h2>
         <button id="openPairModal" class="bg-blue-500 text-white rounded p-2 mb-2">Crear Pareja</button>
-        <div id="pairModal" class="modal-overlay hidden">
-            <div class="modal-window bg-white rounded-lg shadow-2xl p-4 w-80">
-                <h3 class="text-lg font-semibold mb-2">Registro de Pareja</h3>
-                <form id="pairForm" class="grid grid-cols-1 gap-2">
-                    <select id="zagueroSelect" class="border p-2 rounded"></select>
-                    <select id="delanteroSelect" class="border p-2 rounded"></select>
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" id="closePairModal" class="px-3 py-1 rounded border">Cancelar</button>
-                        <button type="submit" class="bg-blue-600 text-white rounded px-3 py-1">Guardar</button>
-                    </div>
-                </form>
-            </div>
-        </div>
         <details class="mt-4">
             <summary class="font-semibold cursor-pointer">Listado de Parejas</summary>
             <div class="flex items-center mt-2">
@@ -151,45 +121,6 @@
         <div class="mb-2 space-x-2">
             <button id="generateSchedule" class="bg-blue-600 text-white rounded p-2">Generar Calendario</button>
             <button id="downloadPdf" class="bg-indigo-600 text-white rounded p-2">Calendario PDF</button>
-        </div>
-        <div id="matchModal" class="modal-overlay hidden">
-            <div class="modal-window bg-white rounded-lg shadow-2xl p-4 w-80">
-                <h3 class="text-lg font-semibold mb-2">Partido</h3>
-                <form id="matchForm" class="space-y-3">
-                    <div class="grid grid-cols-1 gap-2">
-                        <select id="categorySelect" class="border p-2 rounded">
-                            <option value="Primera">Primera</option>
-                            <option value="Segunda">Segunda</option>
-                        </select>
-                        <select id="daySelect" class="border p-2 rounded"></select>
-                        <select id="courtSelect" class="border p-2 rounded">
-                            <option value="">Cancha</option>
-                            <option value="1">Cancha 1</option>
-                            <option value="2">Cancha 2</option>
-                        </select>
-                        <select id="timeSelect" class="border p-2 rounded"></select>
-                        <select id="statusSelect" class="border p-2 rounded">
-                            <option value="Pendiente">Pendiente</option>
-                            <option value="NoA">No Jugado - gana Pareja A</option>
-                            <option value="NoB">No Jugado - gana Pareja B</option>
-                        </select>
-                    </div>
-                    <hr>
-                    <div class="grid grid-cols-2 gap-2 items-center">
-                        <select id="pairA" class="border p-2 rounded w-full"></select>
-                        <input id="scoreA" type="number" min="0" class="border p-2 rounded" />
-                    </div>
-                    <hr>
-                    <div class="grid grid-cols-2 gap-2 items-center">
-                        <select id="pairB" class="border p-2 rounded w-full"></select>
-                        <input id="scoreB" type="number" min="0" class="border p-2 rounded" />
-                    </div>
-                    <div class="flex justify-end space-x-2">
-                        <button type="button" id="closeMatchModal" class="px-3 py-1 rounded border">Cancelar</button>
-                        <button type="submit" class="bg-green-600 text-white rounded px-3 py-1">Guardar</button>
-                    </div>
-                </form>
-            </div>
         </div>
 
         <h3 class="text-lg font-semibold mb-2 mt-4">Calendario de Partidos</h3>
@@ -246,6 +177,79 @@
         <button id="exportDBBtn" class="px-4 py-2 bg-green-600 text-white rounded">Exportar BD</button>
         <label for="importDBInput" class="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">Importar BD</label>
         <input type="file" id="importDBInput" accept=".json" class="hidden" />
+    </div>
+
+    <!-- Modals moved outside of glass-card sections to avoid backdrop-filter clipping -->
+    <div id="playerModal" class="modal-overlay hidden">
+        <div class="modal-window bg-white rounded-lg shadow-2xl p-4 w-80">
+            <h3 class="text-lg font-semibold mb-2">Registro de Jugador</h3>
+            <form id="playerForm" class="grid grid-cols-1 gap-2">
+                <input id="playerName" placeholder="Nombre" class="border p-2 rounded" required />
+                <input id="playerPhone" placeholder="Teléfono a 10 dígitos" pattern="\d{10}" class="border p-2 rounded" required />
+                <input id="playerAdscripcion" placeholder="Adscripción" class="border p-2 rounded" />
+                <input id="playerTurno" placeholder="Turno" class="border p-2 rounded" />
+                <input id="playerBase" placeholder="Tipo de base" class="border p-2 rounded" />
+                <input id="playerTalla" placeholder="Talla de uniforme" class="border p-2 rounded" />
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="closePlayerModal" class="px-3 py-1 rounded border">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 text-white rounded px-3 py-1">Registrar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="pairModal" class="modal-overlay hidden">
+        <div class="modal-window bg-white rounded-lg shadow-2xl p-4 w-80">
+            <h3 class="text-lg font-semibold mb-2">Registro de Pareja</h3>
+            <form id="pairForm" class="grid grid-cols-1 gap-2">
+                <select id="zagueroSelect" class="border p-2 rounded"></select>
+                <select id="delanteroSelect" class="border p-2 rounded"></select>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="closePairModal" class="px-3 py-1 rounded border">Cancelar</button>
+                    <button type="submit" class="bg-blue-600 text-white rounded px-3 py-1">Guardar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <div id="matchModal" class="modal-overlay hidden">
+        <div class="modal-window bg-white rounded-lg shadow-2xl p-4 w-80">
+            <h3 class="text-lg font-semibold mb-2">Partido</h3>
+            <form id="matchForm" class="space-y-3">
+                <div class="grid grid-cols-1 gap-2">
+                    <select id="categorySelect" class="border p-2 rounded">
+                        <option value="Primera">Primera</option>
+                        <option value="Segunda">Segunda</option>
+                    </select>
+                    <select id="daySelect" class="border p-2 rounded"></select>
+                    <select id="courtSelect" class="border p-2 rounded">
+                        <option value="">Cancha</option>
+                        <option value="1">Cancha 1</option>
+                        <option value="2">Cancha 2</option>
+                    </select>
+                    <select id="timeSelect" class="border p-2 rounded"></select>
+                    <select id="statusSelect" class="border p-2 rounded">
+                        <option value="Pendiente">Pendiente</option>
+                        <option value="NoA">No Jugado - gana Pareja A</option>
+                        <option value="NoB">No Jugado - gana Pareja B</option>
+                    </select>
+                </div>
+                <hr>
+                <div class="grid grid-cols-2 gap-2 items-center">
+                    <select id="pairA" class="border p-2 rounded w-full"></select>
+                    <input id="scoreA" type="number" min="0" class="border p-2 rounded" />
+                </div>
+                <hr>
+                <div class="grid grid-cols-2 gap-2 items-center">
+                    <select id="pairB" class="border p-2 rounded w-full"></select>
+                    <input id="scoreB" type="number" min="0" class="border p-2 rounded" />
+                </div>
+                <div class="flex justify-end space-x-2">
+                    <button type="button" id="closeMatchModal" class="px-3 py-1 rounded border">Cancelar</button>
+                    <button type="submit" class="bg-green-600 text-white rounded px-3 py-1">Guardar</button>
+                </div>
+            </form>
+        </div>
     </div>
 
 <script type="module">
