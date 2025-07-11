@@ -56,7 +56,15 @@
         }
     </style>
 </head>
-<body class="bg-gray-50 p-4 max-w-2xl mx-auto">
+<body id="mainContent" class="bg-gray-50 p-4 max-w-2xl mx-auto hidden">
+    <div id="passwordOverlay" class="fixed inset-0 flex items-center justify-center bg-gray-800 bg-opacity-75">
+        <div class="bg-white p-4 rounded shadow">
+            <label for="passwordInput" class="block mb-2">Contraseña:</label>
+            <input id="passwordInput" type="password" class="border p-2 rounded mb-2" />
+            <button id="passwordSubmit" class="bg-blue-600 text-white rounded px-4 py-2">Entrar</button>
+            <p id="passwordError" class="text-red-500 mt-2 hidden">Contraseña incorrecta</p>
+        </div>
+    </div>
     <h1 class="text-2xl font-bold text-center mb-6">Torneo Frontenis 2025</h1>
 
     <section id="infoSection" class="glass-card p-4 mb-10 space-y-2">
@@ -1093,6 +1101,24 @@ onSnapshot(collection(db, 'matches'), loadData);
 onSnapshot(collection(db, 'players'), loadData);
 updateTabStyles();
 loadData();
+</script>
+<script>
+  (function(){
+    const PASSWORD = 'frontenis2025';
+    const overlay = document.getElementById('passwordOverlay');
+    const main = document.getElementById('mainContent');
+    const input = document.getElementById('passwordInput');
+    function check() {
+        if (input.value === PASSWORD) {
+            overlay.remove();
+            main.classList.remove('hidden');
+        } else {
+            document.getElementById('passwordError').classList.remove('hidden');
+        }
+    }
+    document.getElementById('passwordSubmit').addEventListener('click', check);
+    input.addEventListener('keypress', e => { if (e.key === 'Enter') check(); });
+  })();
 </script>
 </body>
 </html>
