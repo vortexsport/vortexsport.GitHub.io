@@ -399,7 +399,7 @@ matchForm.onsubmit = async e => {
     const scoreA = parseInt(document.getElementById('scoreA').value) || 0;
     const scoreB = parseInt(document.getElementById('scoreB').value) || 0;
     if (!pairA || !pairB || pairA === pairB || !court || !time || !day) return;
-    const conflict = currentMatches.some(m => m.category === currentCategory && m.court === court && m.day === day && m.time === time && m.id !== editingMatchId);
+    const conflict = currentMatches.some(m => m.court === court && m.day === day && m.time === time && m.id !== editingMatchId);
     if (conflict) { alert('Horario no disponible'); return; }
     const stage = matchForm.dataset.stage || 'RR';
     const data = { pairA, pairB, scoreA, scoreB, stage, category: currentCategory, court, time, day, ts: Date.now() };
