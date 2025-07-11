@@ -17,16 +17,6 @@
 </head>
 <body class="bg-gray-50 p-4 max-w-2xl mx-auto">
     <h1 class="text-2xl font-bold text-center mb-6">Torneo Frontenis 2025</h1>
-    <div class="flex justify-center mb-6 space-x-2">
-        <button id="tabPrimera" data-category="Primera" class="px-4 py-2 bg-blue-600 text-white rounded">Primera</button>
-        <button id="tabSegunda" data-category="Segunda" class="px-4 py-2 bg-gray-200 rounded">Segunda</button>
-    </div>
-
-    <div class="flex justify-center mb-6 space-x-2">
-        <button id="exportDBBtn" class="px-4 py-2 bg-green-600 text-white rounded">Exportar BD</button>
-        <label for="importDBInput" class="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">Importar BD</label>
-        <input type="file" id="importDBInput" accept=".json" class="hidden" />
-    </div>
 
     <section id="infoSection" class="glass-card p-4 mb-10 space-y-2">
         <h2 class="text-xl font-semibold mb-4">Información del Torneo</h2>
@@ -129,7 +119,12 @@
                 </table>
             </div>
         </details>
-    </section>
+</section>
+
+    <div class="flex justify-center mb-6 space-x-2">
+        <button id="tabPrimera" data-category="Primera" class="px-4 py-2 bg-blue-600 text-white rounded">Primera</button>
+        <button id="tabSegunda" data-category="Segunda" class="px-4 py-2 bg-gray-200 rounded">Segunda</button>
+    </div>
 
     <section id="matchesSection" class="glass-card p-4 mb-10">
         <h2 class="text-xl font-semibold mb-2">Partidos</h2>
@@ -227,6 +222,12 @@
         <h2 class="text-xl font-semibold mb-2">Resultados Finales</h2>
         <div id="finalResults" class="space-y-1 text-sm"></div>
     </section>
+
+    <div class="flex justify-center mb-10 space-x-2">
+        <button id="exportDBBtn" class="px-4 py-2 bg-green-600 text-white rounded">Exportar BD</button>
+        <label for="importDBInput" class="px-4 py-2 bg-blue-600 text-white rounded cursor-pointer">Importar BD</label>
+        <input type="file" id="importDBInput" accept=".json" class="hidden" />
+    </div>
 
 <script type="module">
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js';
