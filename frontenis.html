@@ -61,7 +61,7 @@
         <div class="bg-white p-4 rounded shadow">
             <label for="passwordInput" class="block mb-2">Contraseña:</label>
             <input id="passwordInput" type="password" class="border p-2 rounded mb-2" />
-            <button id="passwordSubmit" class="bg-blue-600 text-white rounded px-4 py-2">Entrar</button>
+            <button id="passwordSubmit" class="bg-blue-600 text-white rounded px-4 py-2 mx-auto block">Entrar</button>
             <p id="passwordError" class="text-red-500 mt-2 hidden">Contraseña incorrecta</p>
         </div>
     </div>
@@ -69,7 +69,7 @@
     <h1 class="text-2xl font-bold text-center mb-6">Torneo Frontenis 2025</h1>
 
     <section id="infoSection" class="glass-card p-4 mb-10 space-y-2">
-        <h2 class="text-xl font-semibold mb-4">Información del Torneo</h2>
+        <h2 class="text-xl font-semibold mb-4 text-center">Información del Torneo</h2>
 
         <p><strong>Torneo de Frontenis ISSEA 2025</strong></p>
         <p><strong>Lugar:</strong> Deportivo IV Centenario, Aguascalientes</p>
@@ -157,9 +157,9 @@
         </details>
     </section>
 
-    <section id="playerSection" class="glass-card p-4 mb-10">
-        <h2 class="text-xl font-semibold mb-2">Jugadores</h2>
-        <button id="openPlayerModal" class="bg-blue-600 text-white rounded p-2 mb-2">Añadir Jugador</button>
+    <section id="playerSection" class="glass-card p-4 mb-10 text-center">
+        <h2 class="text-xl font-semibold mb-2 text-center">Jugadores</h2>
+        <button id="openPlayerModal" class="bg-blue-600 text-white rounded p-2 mb-2 mx-auto block">Añadir Jugador</button>
         <details class="mt-4">
             <summary class="font-semibold cursor-pointer">Listado de Jugadores</summary>
             <div class="flex items-center mt-2">
@@ -181,9 +181,9 @@
         </details>
     </section>
 
-    <section id="pairSection" class="glass-card p-4 mb-10">
-        <h2 class="text-xl font-semibold mb-2">Parejas</h2>
-        <button id="openPairModal" class="bg-blue-500 text-white rounded p-2 mb-2">Crear Pareja</button>
+    <section id="pairSection" class="glass-card p-4 mb-10 text-center">
+        <h2 class="text-xl font-semibold mb-2 text-center">Parejas</h2>
+        <button id="openPairModal" class="bg-blue-500 text-white rounded p-2 mb-2 mx-auto block">Crear Pareja</button>
         <details class="mt-4">
             <summary class="font-semibold cursor-pointer">Listado de Parejas</summary>
             <div class="flex items-center mt-2">
@@ -211,15 +211,15 @@
         <button id="tabSegunda" data-category="Segunda" class="px-4 py-2 bg-gray-200 rounded">Segunda</button>
     </div>
 
-    <section id="matchesSection" class="glass-card p-4 mb-10">
-        <h2 class="text-xl font-semibold mb-2">Partidos</h2>
+    <section id="matchesSection" class="glass-card p-4 mb-10 text-center">
+        <h2 class="text-xl font-semibold mb-2 text-center">Partidos</h2>
 
-        <div class="mb-2 space-x-2">
+        <div class="flex justify-center mb-2 space-x-2">
             <button id="generateSchedule" class="bg-blue-600 text-white rounded p-2">Generar Calendario</button>
             <button id="downloadPdf" class="bg-indigo-600 text-white rounded p-2">Calendario PDF</button>
         </div>
 
-        <h3 class="text-lg font-semibold mb-2 mt-4">Calendario de Partidos</h3>
+        <h3 class="text-lg font-semibold mb-2 mt-4 text-center">Calendario de Partidos</h3>
         <details>
             <summary class="font-semibold cursor-pointer">Ver calendario</summary>
             <div class="overflow-x-auto">
@@ -242,12 +242,12 @@
             </div>
         </details>
 
-        <h3 class="text-lg font-semibold mb-2 mt-4">Partidos Finales</h3>
+        <h3 class="text-lg font-semibold mb-2 mt-4 text-center">Partidos Finales</h3>
         <div id="eliminationBracket" class="space-y-2 text-sm"></div>
     </section>
 
-    <section id="statsSection" class="glass-card p-4 mb-10">
-        <h2 class="text-xl font-semibold mb-2">Estadísticas</h2>
+    <section id="statsSection" class="glass-card p-4 mb-10 text-center">
+        <h2 class="text-xl font-semibold mb-2 text-center">Estadísticas</h2>
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm text-left">
                 <thead>
@@ -265,8 +265,8 @@
         </div>
     </section>
 
-    <section id="resultsSection" class="glass-card p-4 mb-10">
-        <h2 class="text-xl font-semibold mb-2">Resultados Finales</h2>
+    <section id="resultsSection" class="glass-card p-4 mb-10 text-center">
+        <h2 class="text-xl font-semibold mb-2 text-center">Resultados Finales</h2>
         <div id="finalResults" class="space-y-1 text-sm"></div>
     </section>
 
@@ -279,7 +279,7 @@
     <!-- Modals moved outside of glass-card sections to avoid backdrop-filter clipping -->
     <div id="playerModal" class="modal-overlay hidden">
         <div class="modal-window bg-white rounded-lg shadow-2xl p-4 w-80">
-            <h3 class="text-lg font-semibold mb-2">Registro de Jugador</h3>
+            <h3 class="text-lg font-semibold mb-2 text-center">Registro de Jugador</h3>
             <form id="playerForm" class="grid grid-cols-1 gap-2">
                 <input id="playerName" placeholder="Nombre" class="border p-2 rounded" required />
                 <input id="playerPhone" placeholder="Teléfono a 10 dígitos" pattern="\d{10}" class="border p-2 rounded" required />
@@ -287,7 +287,7 @@
                 <input id="playerTurno" placeholder="Turno" class="border p-2 rounded" />
                 <input id="playerBase" placeholder="Tipo de base" class="border p-2 rounded" />
                 <input id="playerTalla" placeholder="Talla de uniforme" class="border p-2 rounded" />
-                <div class="flex justify-end space-x-2">
+                <div class="flex justify-center space-x-2">
                     <button type="button" id="closePlayerModal" class="px-3 py-1 rounded border">Cancelar</button>
                     <button type="submit" class="bg-blue-600 text-white rounded px-3 py-1">Registrar</button>
                 </div>
@@ -297,11 +297,11 @@
 
     <div id="pairModal" class="modal-overlay hidden">
         <div class="modal-window bg-white rounded-lg shadow-2xl p-4 w-80">
-            <h3 class="text-lg font-semibold mb-2">Registro de Pareja</h3>
+            <h3 class="text-lg font-semibold mb-2 text-center">Registro de Pareja</h3>
             <form id="pairForm" class="grid grid-cols-1 gap-2">
                 <select id="zagueroSelect" class="border p-2 rounded"></select>
                 <select id="delanteroSelect" class="border p-2 rounded"></select>
-                <div class="flex justify-end space-x-2">
+                <div class="flex justify-center space-x-2">
                     <button type="button" id="closePairModal" class="px-3 py-1 rounded border">Cancelar</button>
                     <button type="submit" class="bg-blue-600 text-white rounded px-3 py-1">Guardar</button>
                 </div>
@@ -311,7 +311,7 @@
 
     <div id="matchModal" class="modal-overlay hidden">
         <div class="modal-window bg-white rounded-lg shadow-2xl p-4 w-80">
-            <h3 class="text-lg font-semibold mb-2">Partido</h3>
+            <h3 class="text-lg font-semibold mb-2 text-center">Partido</h3>
             <form id="matchForm" class="space-y-3">
                 <div class="grid grid-cols-1 gap-2">
                     <select id="categorySelect" class="border p-2 rounded">
@@ -341,7 +341,7 @@
                     <select id="pairB" class="border p-2 rounded w-full"></select>
                     <input id="scoreB" type="number" min="0" class="border p-2 rounded" />
                 </div>
-                <div class="flex justify-end space-x-2">
+                <div class="flex justify-center space-x-2">
                     <button type="button" id="closeMatchModal" class="px-3 py-1 rounded border">Cancelar</button>
                     <button type="submit" class="bg-green-600 text-white rounded px-3 py-1">Guardar</button>
                 </div>
@@ -888,7 +888,7 @@ function renderElimination(pairs, matches) {
             </div>
             <input type="hidden" name="a" value="${aId}">
             <input type="hidden" name="b" value="${bId}">
-            <div class="flex justify-end">
+            <div class="flex justify-center">
                 <button type="submit" class="bg-green-600 text-white rounded p-2" ${disabled}>Guardar</button>
             </div>`;
         const inputA = form.querySelector('input[name="sa"]');
