@@ -32,6 +32,28 @@
             transform: translate(-50%, -50%);
             z-index: 9999;
         }
+        @media (max-width: 640px) {
+            .responsive-table thead {
+                display: none;
+            }
+            .responsive-table tr {
+                display: grid;
+                grid-template-columns: 1fr 1fr;
+                gap: 0.25rem;
+                border-bottom-width: 1px;
+                padding-bottom: 0.5rem;
+                margin-bottom: 0.5rem;
+            }
+            .responsive-table td {
+                display: flex;
+                justify-content: space-between;
+                width: 100%;
+            }
+            .responsive-table td::before {
+                content: attr(data-label);
+                font-weight: 600;
+            }
+        }
     </style>
 </head>
 <body class="bg-gray-50 p-4 max-w-2xl mx-auto">
@@ -71,7 +93,7 @@
                 <button id="clearPlayerSearch" type="button" class="ml-2 px-2 py-1 bg-gray-200 rounded">✕</button>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full text-sm mt-2">
+                <table class="min-w-full text-sm mt-2 responsive-table">
                     <thead>
                         <tr class="border-b">
                             <th class="px-2 py-1">Nombre</th>
@@ -95,7 +117,7 @@
                 <button id="clearPairSearch" type="button" class="ml-2 px-2 py-1 bg-gray-200 rounded">✕</button>
             </div>
             <div class="overflow-x-auto">
-                <table class="min-w-full text-sm mt-2">
+                <table class="min-w-full text-sm mt-2 responsive-table">
                     <thead>
                         <tr class="border-b">
                             <th class="px-2 py-1">Zaguero</th>
@@ -127,7 +149,7 @@
         <details>
             <summary class="font-semibold cursor-pointer">Ver calendario</summary>
             <div class="overflow-x-auto">
-                <table class="min-w-full text-sm mt-2" id="historyTable">
+                <table class="min-w-full text-sm mt-2 responsive-table" id="historyTable">
                     <thead>
                         <tr class="border-b">
                             <th class="px-2 py-1">Fecha</th>
@@ -152,7 +174,7 @@
     <section id="statsSection" class="glass-card p-4 mb-10">
         <h2 class="text-xl font-semibold mb-2">Estadísticas</h2>
         <div class="overflow-x-auto">
-            <table class="min-w-full text-sm text-left">
+            <table class="min-w-full text-sm text-left responsive-table">
                 <thead>
                     <tr class="border-b">
                         <th class="px-2 py-1">Pareja</th>
@@ -545,10 +567,10 @@ function renderPairs(pairs) {
             const tr = document.createElement('tr');
             tr.className = 'border-b';
             tr.innerHTML = `
-                <td class="px-2 py-1">${p.zaguero}</td>
-                <td class="px-2 py-1">${p.delantero}</td>
-                <td class="px-2 py-1">${p.category || ''}</td>
-                <td class="px-2 py-1 whitespace-nowrap">
+                <td class="px-2 py-1" data-label="Zaguero">${p.zaguero}</td>
+                <td class="px-2 py-1" data-label="Delantero">${p.delantero}</td>
+                <td class="px-2 py-1" data-label="Categoría">${p.category || ''}</td>
+                <td class="px-2 py-1 whitespace-nowrap" data-label="Acciones">
                     <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button>
                     <button data-del="${p.id}" class="text-red-600 ml-2"><i class="ti ti-trash"></i></button>
                 </td>`;
@@ -566,9 +588,9 @@ function renderPlayers(players) {
             const tr = document.createElement('tr');
             tr.className = 'border-b';
             tr.innerHTML = `
-                <td class="px-2 py-1">${p.name}</td>
-                <td class="px-2 py-1">${p.category}</td>
-                <td class="px-2 py-1 whitespace-nowrap">
+                <td class="px-2 py-1" data-label="Nombre">${p.name}</td>
+                <td class="px-2 py-1" data-label="Categoría">${p.category}</td>
+                <td class="px-2 py-1 whitespace-nowrap" data-label="Acciones">
                     <button data-edit="${p.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button>
                     <button data-del="${p.id}" class="text-red-600 ml-2"><i class="ti ti-trash"></i></button>
                 </td>`;
@@ -668,7 +690,13 @@ function renderStats(stats) {
     statsBody.innerHTML = '';
     stats.forEach(s => {
         const tr = document.createElement('tr');
-        tr.innerHTML = `<td class="px-2 py-1">${s.name}</td><td>${s.jj}</td><td>${s.jg}</td><td>${s.jp}</td><td>${s.pf}</td><td>${s.pc}</td>`;
+        tr.innerHTML = `
+            <td class="px-2 py-1" data-label="Pareja">${s.name}</td>
+            <td data-label="JJ">${s.jj}</td>
+            <td data-label="JG">${s.jg}</td>
+            <td data-label="JP">${s.jp}</td>
+            <td data-label="PF">${s.pf}</td>
+            <td data-label="PC">${s.pc}</td>`;
         statsBody.appendChild(tr);
     });
 }
@@ -685,14 +713,14 @@ function renderHistory(pairs, matches) {
         const tr = document.createElement('tr');
         tr.className = 'border-b';
         tr.innerHTML = `
-            <td class="px-2 py-1">${m.day || ''}</td>
-            <td class="px-2 py-1">${m.court || ''}</td>
-            <td class="px-2 py-1">${m.time ? formatTime(m.time) : ''}</td>
-            <td class="px-2 py-1">${map[m.pairA] || '?'}</td>
-            <td class="px-2 py-1 text-center">${m.scoreA}</td>
-            <td class="px-2 py-1">${map[m.pairB] || '?'}</td>
-            <td class="px-2 py-1 text-center">${m.scoreB}</td>
-            <td class="px-2 py-1 whitespace-nowrap">
+            <td class="px-2 py-1" data-label="Fecha">${m.day || ''}</td>
+            <td class="px-2 py-1" data-label="Cancha">${m.court || ''}</td>
+            <td class="px-2 py-1" data-label="Horario">${m.time ? formatTime(m.time) : ''}</td>
+            <td class="px-2 py-1" data-label="Pareja A">${map[m.pairA] || '?'}</td>
+            <td class="px-2 py-1 text-center" data-label="Pts A">${m.scoreA}</td>
+            <td class="px-2 py-1" data-label="Pareja B">${map[m.pairB] || '?'}</td>
+            <td class="px-2 py-1 text-center" data-label="Pts B">${m.scoreB}</td>
+            <td class="px-2 py-1 whitespace-nowrap" data-label="Acciones">
                 <button data-edit="${m.id}" class="text-blue-600"><i class="ti ti-pencil"></i></button>
                 <button data-del="${m.id}" class="text-red-600 ml-2"><i class="ti ti-trash"></i></button>
             </td>`;
