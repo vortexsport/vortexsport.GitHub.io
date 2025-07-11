@@ -101,6 +101,7 @@
         <h3 class="text-lg font-semibold mb-2">Registrar Partido</h3>
         <div class="mb-2 space-x-2">
             <button id="generateSchedule" class="bg-blue-600 text-white rounded p-2">Generar Calendario</button>
+            <button id="downloadPdf" class="bg-indigo-600 text-white rounded p-2">Calendario PDF</button>
             <button id="openMatchModal" class="bg-green-600 text-white rounded p-2">Registrar Partido</button>
         </div>
         <div id="matchModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
@@ -188,6 +189,7 @@ const courtSelect = document.getElementById('courtSelect');
 const timeSelect = document.getElementById('timeSelect');
 const daySelect = document.getElementById('daySelect');
 const generateScheduleBtn = document.getElementById('generateSchedule');
+const downloadPdfBtn = document.getElementById('downloadPdf');
 const statsBody = document.getElementById('statsBody');
 const historyList = document.getElementById('historyList');
 const eliminationBracket = document.getElementById('eliminationBracket');
@@ -240,8 +242,10 @@ clearPairSearch?.addEventListener('click', () => { pairSearchInput.value=''; ren
 courtSelect.onchange = fillTimeOptions;
 daySelect.onchange = fillTimeOptions;
 generateScheduleBtn.onclick = generateRoundRobin;
+downloadPdfBtn.onclick = downloadSchedulePdf;
 
 openPairModalBtn.onclick = () => {
+    editingPairId = null;
     fillPlayerSelects();
     pairForm.reset();
     pairModal.classList.remove('hidden');
@@ -282,14 +286,23 @@ function updateTabStyles() {
 }
 
 function fillPlayerSelects() {
+    const used = new Set();
+    currentPairs.forEach(p => {
+        if (!editingPairId || p.id !== editingPairId) {
+            used.add(p.zaguero);
+            used.add(p.delantero);
+        }
+    });
     [zagueroSelect, delanteroSelect].forEach(sel => {
         sel.innerHTML = '<option value="">Jugador</option>';
-        currentPlayers.filter(p => p.category === currentCategory).forEach(p => {
-            const opt = document.createElement('option');
-            opt.value = p.name;
-            opt.textContent = p.name;
-            sel.appendChild(opt);
-        });
+        currentPlayers
+            .filter(p => p.category === currentCategory && !used.has(p.name))
+            .forEach(p => {
+                const opt = document.createElement('option');
+                opt.value = p.name;
+                opt.textContent = p.name;
+                sel.appendChild(opt);
+            });
     });
 }
 
@@ -442,10 +455,10 @@ pairList.onclick = async e => {
         const id = e.target.closest('button').dataset.edit;
         const pair = currentPairs.find(p => p.id === id);
         if (pair) {
+            editingPairId = id;
             fillPlayerSelects();
             zagueroSelect.value = pair.zaguero;
             delanteroSelect.value = pair.delantero;
-            editingPairId = id;
             pairModal.classList.remove('hidden');
         }
     } else if (e.target.closest('button')?.dataset.del) {
@@ -687,6 +700,40 @@ async function generateRoundRobin() {
     }
     for (const m of schedule) { await addDoc(collection(db,'matches'), m); }
     alert('Rol generado');
+}
+
+function downloadSchedulePdf() {
+    const map = Object.fromEntries(currentPairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
+    const cats = Array.from(new Set(currentMatches.map(m => m.category)));
+    const win = window.open('', '_blank');
+    if (!win) return;
+    let html = `<html><head><title>Calendario</title><style>
+        body{font-family:sans-serif;}table{border-collapse:collapse;width:100%;margin-bottom:20px;}
+        th,td{border:1px solid #000;padding:4px;}th{background:#eee;}h1,h2{margin-top:1.5rem;}
+    </style></head><body>`;
+    cats.forEach(cat => {
+        const matches = currentMatches.filter(m => m.category === cat).sort((a,b) => {
+            if (a.day !== b.day) return (a.day||'').localeCompare(b.day||'');
+            if (a.court !== b.court) return (a.court||0) - (b.court||0);
+            return (a.time||'').localeCompare(b.time||'');
+        });
+        if (!matches.length) return;
+        html += `<h1>Categoría ${cat}</h1>`;
+        let current = '';
+        matches.forEach(m => {
+            if (m.day !== current) {
+                if (current) html += '</tbody></table>';
+                html += `<h2>${m.day}</h2><table><thead><tr><th>Cancha</th><th>Horario</th><th>Pareja A</th><th>Pareja B</th><th>Marcador</th></tr></thead><tbody>`;
+                current = m.day;
+            }
+            html += `<tr><td>${m.court || ''}</td><td>${formatTime(m.time || '')}</td><td>${map[m.pairA] || ''}</td><td>${map[m.pairB] || ''}</td><td style="height:20px"></td></tr>`;
+        });
+        if (current) html += '</tbody></table>';
+    });
+    html += '</body></html>';
+    win.document.write(html);
+    win.document.close();
+    win.print();
 }
 
 async function exportDatabase() {
