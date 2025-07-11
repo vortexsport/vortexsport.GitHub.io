@@ -16,7 +16,7 @@
     </style>
 </head>
 <body class="bg-gray-50 p-4 max-w-2xl mx-auto">
-    <h1 class="text-2xl font-bold text-center mb-6">Administrador Torneo Frontenis ISSEA</h1>
+    <h1 class="text-2xl font-bold text-center mb-6">Torneo Frontenis 2025</h1>
     <div class="flex justify-center mb-6 space-x-2">
         <button id="tabPrimera" data-category="Primera" class="px-4 py-2 bg-blue-600 text-white rounded">Primera</button>
         <button id="tabSegunda" data-category="Segunda" class="px-4 py-2 bg-gray-200 rounded">Segunda</button>
@@ -37,7 +37,7 @@
     </section>
 
     <section id="playerSection" class="glass-card p-4 mb-10">
-        <h2 class="text-xl font-semibold mb-2">Cédula de Jugador</h2>
+        <h2 class="text-xl font-semibold mb-2">Jugadores</h2>
         <button id="openPlayerModal" class="bg-blue-600 text-white rounded p-2 mb-2">Añadir Jugador</button>
         <div id="playerModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
             <div class="bg-white rounded-lg shadow-2xl p-4 w-80">
@@ -67,8 +67,8 @@
     </section>
 
     <section id="pairSection" class="glass-card p-4 mb-10">
-        <h2 class="text-xl font-semibold mb-2">Agregar Pareja</h2>
-        <button id="openPairModal" class="bg-blue-500 text-white rounded p-2 mb-2">Añadir Pareja</button>
+        <h2 class="text-xl font-semibold mb-2">Parejas</h2>
+        <button id="openPairModal" class="bg-blue-500 text-white rounded p-2 mb-2">Crear Pareja</button>
         <div id="pairModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
             <div class="bg-white rounded-lg shadow-2xl p-4 w-80">
                 <h3 class="text-lg font-semibold mb-2">Registro de Pareja</h3>
@@ -98,15 +98,15 @@
         <h3 class="text-lg font-semibold mb-2">Eliminatorias</h3>
         <div id="eliminationBracket" class="space-y-2 text-sm mb-4"></div>
 
-        <h3 class="text-lg font-semibold mb-2">Registrar Partido</h3>
+        <h3 class="text-lg font-semibold mb-2">Partidos</h3>
         <div class="mb-2 space-x-2">
             <button id="generateSchedule" class="bg-blue-600 text-white rounded p-2">Generar Calendario</button>
             <button id="downloadPdf" class="bg-indigo-600 text-white rounded p-2">Calendario PDF</button>
-            <button id="openMatchModal" class="bg-green-600 text-white rounded p-2">Registrar Partido</button>
+            <button id="openMatchModal" class="bg-green-600 text-white rounded p-2">Registrar resultado</button>
         </div>
         <div id="matchModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
             <div class="bg-white rounded-lg shadow-2xl p-4 w-80">
-                <h3 class="text-lg font-semibold mb-2">Registro de Partido</h3>
+                <h3 class="text-lg font-semibold mb-2">Partido</h3>
                 <form id="matchForm" class="space-y-3">
                     <div class="grid grid-cols-3 gap-2">
                         <select id="daySelect" class="border p-2 rounded"></select>
@@ -132,9 +132,9 @@
             </div>
         </div>
 
-        <h3 class="text-lg font-semibold mb-2 mt-4">Historial de Partidos</h3>
+        <h3 class="text-lg font-semibold mb-2 mt-4">Calendario de Partidos</h3>
         <details>
-            <summary class="font-semibold cursor-pointer">Ver Historial</summary>
+            <summary class="font-semibold cursor-pointer">Ver calendario</summary>
             <ul id="historyList" class="space-y-1 text-sm mt-2"></ul>
         </details>
     </section>
