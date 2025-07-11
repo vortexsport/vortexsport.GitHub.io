@@ -753,9 +753,10 @@ function renderFinalResults(pairs, matches) {
     const map = Object.fromEntries(pairs.map(p => [p.id, `${p.zaguero} / ${p.delantero}`]));
     const finalMatch = matches.find(m => m.stage === 'F');
     const thirdMatch = matches.find(m => m.stage === '3P');
+    const rrDone = matches.filter(m => (m.stage || 'RR') === 'RR').every(m => m.status === 'Finalizado');
     container.innerHTML = '';
-    if (!finalMatch || !thirdMatch) {
-        container.textContent = 'Resultados pendientes';
+    if (!finalMatch || !thirdMatch || finalMatch.status !== 'Finalizado' || thirdMatch.status !== 'Finalizado' || !rrDone) {
+        container.textContent = 'Pendiente de resultados';
         return;
     }
     const first = finalMatch.scoreA > finalMatch.scoreB ? finalMatch.pairA : finalMatch.pairB;
