@@ -6,6 +6,14 @@
     <title>Torneo de Frontenis ISSEA</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@tabler/icons-webfont@2.47.0/tabler-icons.min.css">
+    <style>
+        .glass-card {
+            background: rgba(255, 255, 255, 0.4);
+            backdrop-filter: blur(6px);
+            border-radius: 1rem;
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.3);
+        }
+    </style>
 </head>
 <body class="bg-gray-50 p-4 max-w-2xl mx-auto">
     <h1 class="text-2xl font-bold text-center mb-6">Administrador Torneo Frontenis ISSEA</h1>
@@ -20,7 +28,7 @@
         <input type="file" id="importDBInput" accept=".json" class="hidden" />
     </div>
 
-    <section id="infoSection" class="mb-10">
+    <section id="infoSection" class="glass-card p-4 mb-10">
         <h2 class="text-xl font-semibold mb-2">Información del Torneo</h2>
         <p class="mb-2">El torneo se llevará a cabo en el <strong>Deportivo IV Centenario</strong> de Aguascalientes.</p>
         <p class="mb-2">Las jornadas serán los <strong>miércoles</strong> del <strong>9/09/2025</strong> al <strong>30/09/2025</strong>.</p>
@@ -28,11 +36,12 @@
         <p>Las instalaciones cuentan con <strong>2 canchas de Frontenis</strong>.</p>
     </section>
 
-    <section id="playerSection" class="mb-10">
+    <section id="playerSection" class="glass-card p-4 mb-10">
         <h2 class="text-xl font-semibold mb-2">Cédula de Jugador</h2>
         <button id="openPlayerModal" class="bg-blue-600 text-white rounded p-2 mb-2">Añadir Jugador</button>
         <div id="playerModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
             <div class="bg-white rounded-lg shadow-2xl p-4 w-80">
+                <h3 class="text-lg font-semibold mb-2">Registro de Jugador</h3>
                 <form id="playerForm" class="grid grid-cols-1 gap-2">
                     <input id="playerName" placeholder="Nombre" class="border p-2 rounded" required />
                     <input id="playerPhone" placeholder="Teléfono a 10 dígitos" pattern="\d{10}" class="border p-2 rounded" required />
@@ -47,14 +56,18 @@
                 </form>
             </div>
         </div>
-        <ul id="playerList" class="mt-4 space-y-1 text-sm"></ul>
+        <details class="mt-4">
+            <summary class="font-semibold cursor-pointer">Listado de Jugadores</summary>
+            <ul id="playerList" class="mt-2 space-y-1 text-sm"></ul>
+        </details>
     </section>
 
-    <section id="pairSection" class="mb-10">
+    <section id="pairSection" class="glass-card p-4 mb-10">
         <h2 class="text-xl font-semibold mb-2">Agregar Pareja</h2>
         <button id="openPairModal" class="bg-blue-500 text-white rounded p-2 mb-2">Añadir Pareja</button>
         <div id="pairModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
             <div class="bg-white rounded-lg shadow-2xl p-4 w-80">
+                <h3 class="text-lg font-semibold mb-2">Registro de Pareja</h3>
                 <form id="pairForm" class="grid grid-cols-1 gap-2">
                     <select id="zagueroSelect" class="border p-2 rounded"></select>
                     <select id="delanteroSelect" class="border p-2 rounded"></select>
@@ -65,27 +78,26 @@
                 </form>
             </div>
         </div>
-        <ul id="pairList" class="mt-4 space-y-1 text-sm"></ul>
+        <details class="mt-4">
+            <summary class="font-semibold cursor-pointer">Listado de Parejas</summary>
+            <ul id="pairList" class="mt-2 space-y-1 text-sm"></ul>
+        </details>
     </section>
 
-    <section id="historySection" class="mb-10">
-        <h2 class="text-xl font-semibold mb-2">Historial de Partidos</h2>
-        <ul id="historyList" class="space-y-1 text-sm"></ul>
-    </section>
+    <section id="matchesSection" class="glass-card p-4 mb-10">
+        <h2 class="text-xl font-semibold mb-2">Partidos</h2>
 
-    <section id="eliminationSection" class="mb-10">
-        <h2 class="text-xl font-semibold mb-2">Eliminatorias</h2>
-        <div id="eliminationBracket" class="space-y-2 text-sm"></div>
-    </section>
+        <h3 class="text-lg font-semibold mb-2">Eliminatorias</h3>
+        <div id="eliminationBracket" class="space-y-2 text-sm mb-4"></div>
 
-    <section id="matchSection" class="mb-10">
-        <h2 class="text-xl font-semibold mb-2">Registrar Partido</h2>
+        <h3 class="text-lg font-semibold mb-2">Registrar Partido</h3>
         <div class="mb-2 space-x-2">
             <button id="generateSchedule" class="bg-blue-600 text-white rounded p-2">Generar Calendario</button>
             <button id="openMatchModal" class="bg-green-600 text-white rounded p-2">Registrar Partido</button>
         </div>
         <div id="matchModal" class="hidden fixed inset-0 flex items-center justify-center bg-black bg-opacity-60">
             <div class="bg-white rounded-lg shadow-2xl p-4 w-80">
+                <h3 class="text-lg font-semibold mb-2">Registro de Partido</h3>
                 <form id="matchForm" class="grid grid-cols-2 gap-2 items-center">
                     <select id="daySelect" class="border p-2 rounded"></select>
                     <select id="courtSelect" class="border p-2 rounded">
@@ -106,9 +118,15 @@
                 </form>
             </div>
         </div>
+
+        <h3 class="text-lg font-semibold mb-2 mt-4">Historial de Partidos</h3>
+        <details>
+            <summary class="font-semibold cursor-pointer">Ver Historial</summary>
+            <ul id="historyList" class="space-y-1 text-sm mt-2"></ul>
+        </details>
     </section>
 
-    <section id="statsSection" class="mb-10">
+    <section id="statsSection" class="glass-card p-4 mb-10">
         <h2 class="text-xl font-semibold mb-2">Estadísticas</h2>
         <div class="overflow-x-auto">
             <table class="min-w-full text-sm text-left">
